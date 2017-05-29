@@ -182,9 +182,37 @@ describe('payload', () => {
 
             Wreck.post(uri, { payload }, (err, res, body) => {
 
+                expect(err).to.exist();
+                expect(err.data.response.statusCode).to.equal(400);
+                expect(err.data.payload.toString()).to.equal('{"statusCode":400,"error":"Bad Request","message":"Payload content length greater than maximum allowed: 1048576"}');
+
+                server.stop(done);
+            });
+        });
+    });
+
+    it('handles expect 100-continue', (done) => {
+
+        const handler = function (request, reply) {
+
+            return reply(request.payload);
+        };
+
+        const server = new Hapi.Server();
+        server.connection();
+        server.route({ method: 'POST', path: '/', config: { handler } });
+
+        server.start((err) => {
+
+            expect(err).to.not.exist();
+
+            const uri = 'http://localhost:' + server.info.port;
+
+            Wreck.post(uri, { payload: { hello: true }, headers: { expect: '100-continue' } }, (err, res, body) => {
+
                 expect(err).to.not.exist();
-                expect(res.statusCode).to.equal(400);
-                expect(body.toString()).to.equal('{"statusCode":400,"error":"Bad Request","message":"Payload content length greater than maximum allowed: 1048576"}');
+                expect(res.statusCode).to.equal(200);
+                expect(body.toString()).to.equal('{"hello":true}');
 
                 server.stop(done);
             });
@@ -645,6 +673,28 @@ describe('payload', () => {
             expect(res.result.field1.length).to.equal(2);
             expect(res.result.field1[1]).to.equal('Repeated name segment');
             expect(res.result.pics).to.exist();
+            done();
+        });
+    });
+
+    it('signals connection close when payload is unconsumed', (done) => {
+
+        const payload = new Buffer(10 * 1024 * 1024).toString();
+
+        const handler = function (request, reply) {
+
+            return reply('ok');
+        };
+
+        const server = new Hapi.Server();
+        server.connection();
+        server.route({ method: 'POST', path: '/', config: { handler, payload: { maxBytes: 11 * 1024 * 1024, output: 'stream', parse: false } } });
+
+        server.inject({ method: 'POST', url: '/', payload, headers: { 'content-type': 'application/octet-stream' } }, (res) => {
+
+            expect(res.statusCode).to.equal(200);
+            expect(res.headers).to.include({ connection: 'close' });
+            expect(res.result).to.equal('ok');
             done();
         });
     });
