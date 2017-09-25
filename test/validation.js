@@ -500,7 +500,7 @@ describe('validation', () => {
         server.inject('/?a=123', (res) => {
 
             expect(res.statusCode).to.equal(200);
-            expect(res.result).to.equal('a');
+            expect(res.result).to.equal(['a']);
             done();
         });
     });
@@ -610,6 +610,41 @@ describe('validation', () => {
                 keys: ['a']
             });
 
+            done();
+        });
+    });
+
+    it('fails on invalid input (with joi 11 error)', (done) => {
+
+        // Fake the joi 11 format
+        const joiFakeError = new Error();
+        joiFakeError.details = [{ path: ['foo', 'bar'] }];
+
+        const server = new Hapi.Server();
+        server.connection();
+        server.route({
+            method: 'GET',
+            path: '/',
+            handler: function (request, reply) {
+
+                return reply('ok');
+            },
+            config: {
+                validate: {
+                    query: {
+                        a: Joi.number().error(joiFakeError)
+                    }
+                }
+            }
+        });
+
+        server.inject('/?a=abc', (res) => {
+
+            expect(res.statusCode).to.equal(400);
+            expect(res.result.validation).to.equal({
+                source: 'query',
+                keys: ['foo.bar']
+            });
             done();
         });
     });
@@ -981,7 +1016,7 @@ describe('validation', () => {
             expect(res.statusCode).to.equal(400);
             expect(res.result.validation).to.equal({
                 source: 'payload',
-                keys: ['value']
+                keys: ['']
             });
 
             done();
