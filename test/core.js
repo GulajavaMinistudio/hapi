@@ -260,7 +260,7 @@ describe('Core', () => {
         await server.stop();
     });
 
-    it('disables node socket timeout', { parallel: false }, async () => {
+    it('disables node socket timeout', async () => {
 
         const server = new Hapi.Server({ routes: { timeout: { socket: false } } });
         server.route({ method: 'GET', path: '/', handler: () => null });
@@ -602,7 +602,7 @@ describe('Core', () => {
             await server.stop();
         });
 
-        it('sets info with defaults when missing hostname and address', { parallel: false }, async () => {
+        it('sets info with defaults when missing hostname and address', async () => {
 
             const hostname = Os.hostname;
             Os.hostname = function () {
@@ -854,7 +854,7 @@ describe('Core', () => {
 
     describe('_dispatch()', () => {
 
-        it('rejects request due to high rss load', { parallel: false }, async () => {
+        it('rejects request due to high rss load', async () => {
 
             const server = new Hapi.Server({ load: { sampleInterval: 5, maxRssBytes: 1 } });
 
@@ -1207,7 +1207,7 @@ describe('Core', () => {
             const server = new Hapi.Server();
             const onRequest = (request, h) => {
 
-                return h.wrap().redirect('/elsewhere').takeover();
+                return h.response().redirect('/elsewhere').takeover();
             };
 
             server.ext('onRequest', onRequest);
@@ -1238,7 +1238,7 @@ describe('Core', () => {
 
             const preResponse1 = (request, h) => {
 
-                return h.wrap(1).takeover();
+                return h.response(1).takeover();
             };
 
             server.ext('onPreResponse', preResponse1);
@@ -1362,7 +1362,7 @@ describe('Core', () => {
 
                 const preResponse = (request, h) => {
 
-                    return h.wrap(request.response.output.statusCode).takeover();
+                    return h.response(request.response.output.statusCode).takeover();
                 };
 
                 server.ext('onPreResponse', preResponse);
@@ -1513,7 +1513,7 @@ describe('Core', () => {
 
             const handler = (request, h) => {
 
-                return h.wrap('ok').etag('test').code(205);
+                return h.response('ok').etag('test').code(205);
             };
 
             const server = new Hapi.Server();
@@ -1691,7 +1691,7 @@ describe('Core', () => {
         });
     });
 
-    describe('load', { parallel: false }, () => {
+    describe('load', () => {
 
         it('measures loop delay', async () => {
 

@@ -261,6 +261,34 @@ describe('Server', () => {
             expect(res.result).to.equal('testing123');
         });
 
+        it('register a plugin once (plugin options)', async () => {
+
+            let count = 0;
+            const b = function (srv, options) {
+
+                ++count;
+            };
+
+            b.attributes = {
+                name: 'b'
+            };
+
+            const a = async function (srv, options) {
+
+                await srv.register({ register: b, once: true });
+            };
+
+            a.attributes = {
+                name: 'a'
+            };
+
+            const server = new Hapi.Server();
+            await server.register(b);
+            await server.register(a);
+            await server.initialize();
+            expect(count).to.equal(1);
+        });
+
         it('registers plugins and adds options to realm that routes can access', async () => {
 
             const server = new Hapi.Server();
@@ -1039,7 +1067,7 @@ describe('Server', () => {
 
             const success = function () {
 
-                return this.wrap({ status: 'ok' });
+                return this.response({ status: 'ok' });
             };
 
             server.decorate('toolkit', 'success', success);
@@ -1387,7 +1415,7 @@ describe('Server', () => {
             const server = new Hapi.Server();
 
             const updates = [];
-            server.events.registerEvent({ name: 'test', channels: ['x', 'y'] });
+            server.event({ name: 'test', channels: ['x', 'y'] });
 
             server.events.on({ name: 'test', channels: 'x' }, (update) => updates.push({ id: 'server', channel: 'x', update }));
 
@@ -1879,7 +1907,7 @@ describe('Server', () => {
         });
     });
 
-    describe('log()', { parallel: false }, () => {
+    describe('log()', () => {
 
         it('emits a log event', async () => {
 
@@ -1920,9 +1948,9 @@ describe('Server', () => {
             expect(event.data).to.equal(123);
         });
 
-        it('emits a log event and print to console', { parallel: false }, async () => {
+        it('emits a log event and print to console', async () => {
 
-            const server = new Hapi.Server({ debug: { log: '*' } });
+            const server = new Hapi.Server({ debug: { log: 'implementation' } });
 
             server.events.once('log', (event, tags) => {
 

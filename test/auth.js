@@ -62,7 +62,7 @@ describe('authentication', () => {
         const server = new Hapi.Server();
         server.auth.scheme('custom', internals.implementation);
         server.auth.strategy('default', 'custom', true, { users: { steve: {} } });
-        server.route({ method: 'GET', path: '/', handler: (request, h) => h.wrap('ok').ttl(1000) });
+        server.route({ method: 'GET', path: '/', handler: (request, h) => h.response('ok').ttl(1000) });
 
         const res = await server.inject({ url: '/', headers: { authorization: 'Custom steve' } });
         expect(res.statusCode).to.equal(200);
@@ -169,7 +169,7 @@ describe('authentication', () => {
                 });
 
                 return {
-                    authenticate: (request, h) =>  h.view('test', { message: 'xyz' })
+                    authenticate: (request, h) => h.view('test', { message: 'xyz' })
                 };
             };
 
@@ -1144,7 +1144,7 @@ describe('authentication', () => {
             server.auth.scheme('test', (srv, options) => {
 
                 return {
-                    authenticate: (request, h) => h.wrap('Redirecting ...').redirect('/test')
+                    authenticate: (request, h) => h.response('Redirecting ...').redirect('/test')
                 };
             });
 
@@ -1192,6 +1192,45 @@ describe('authentication', () => {
             const res = await server.inject(options);
             expect(res.statusCode).to.equal(200);
             expect(res.result.bar).to.equal('baz');
+        });
+
+        it('errors on empty authenticate()', async () => {
+
+            const scheme = () => {
+
+                return { authenticate: (request, h) => h.authenticated() };
+            };
+
+            const server = new Hapi.Server();
+            server.auth.scheme('custom', scheme);
+            server.auth.strategy('default', 'custom', true);
+            server.route({ method: 'GET', path: '/', handler: () => null });
+
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(500);
+        });
+
+        it('passes credentials on unauthenticated()', async () => {
+
+            const scheme = () => {
+
+                return { authenticate: (request, h) => h.unauthenticated(Boom.unauthorized(), { credentials: { user: 'steve' } }) };
+            };
+
+            const server = new Hapi.Server();
+            server.ext('onPreResponse', (request, h) => {
+
+                if (request.auth.credentials.user === 'steve') {
+                    return h.continue;
+                }
+            });
+
+            server.auth.scheme('custom', scheme);
+            server.auth.strategy('default', 'custom', 'try');
+            server.route({ method: 'GET', path: '/', handler: () => null });
+
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(200);
         });
     });
 
@@ -1345,29 +1384,30 @@ describe('authentication', () => {
         it('allows one strategy to supports optional payload authentication while another does not', async () => {
 
             const server = new Hapi.Server();
-            const implementation = function () {
+            const implementation = function (...args) {
 
-                return { authenticate: internals.implementation().authenticate };
+                return { authenticate: internals.implementation(...args).authenticate };
             };
 
             server.auth.scheme('custom1', implementation);
-            server.auth.scheme('custom2', internals.implementation);
-            server.auth.strategy('default1', 'custom1', {});
+            server.auth.scheme('custom2', internals.implementation, { users: {} });
+            server.auth.strategy('default1', 'custom1', { users: { steve: { user: 'steve' } } });
             server.auth.strategy('default2', 'custom2', {});
-            expect(() => {
 
-                server.route({
-                    method: 'POST',
-                    path: '/',
-                    config: {
-                        handler: (request) => request.auth.credentials.user,
-                        auth: {
-                            strategies: ['default2', 'default1'],
-                            payload: 'optional'
-                        }
+            server.route({
+                method: 'POST',
+                path: '/',
+                config: {
+                    handler: (request) => request.auth.credentials.user,
+                    auth: {
+                        strategies: ['default1', 'default2'],
+                        payload: 'optional'
                     }
-                });
-            }).to.not.throw();
+                }
+            });
+
+            const res = await server.inject({ method: 'POST', url: '/', headers: { authorization: 'Custom steve' } });
+            expect(res.statusCode).to.equal(200);
         });
 
         it('skips request payload by default', async () => {
@@ -1521,7 +1561,7 @@ describe('authentication', () => {
 
             const server = new Hapi.Server();
             server.auth.scheme('custom', internals.implementation);
-            server.auth.strategy('default', 'custom', { users: { steve: { name: 'steve' } } });
+            server.auth.strategy('default', 'custom', { users: { steve: { name: 'steve' }, skip: 'skip' } });
             server.route({ method: 'GET', path: '/', handler });
 
             const res1 = await server.inject('/');
@@ -1532,6 +1572,10 @@ describe('authentication', () => {
             expect(res2.statusCode).to.equal(200);
             expect(res2.result.status).to.be.true();
             expect(res2.result.user).to.equal('steve');
+
+            const res3 = await server.inject({ url: '/', headers: { authorization: 'Custom skip' } });
+            expect(res3.statusCode).to.equal(200);
+            expect(res3.result.status).to.be.false();
         });
     });
 });
