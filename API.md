@@ -1,230 +1,478 @@
-# 17.0.x API Reference
+# v17.0.x API Reference
+
+<!-- toc -->
 
 - [Server](#server)
-    - [`new Server([options])`](#new-serveroptions)
-    - [Server properties](#server-properties)
-        - [`server.app`](#serverapp)
-        - [`server.connections`](#serverconnections)
-        - [`server.decorations`](#serverdecorations)
-        - [`server.info`](#serverinfo)
-        - [`server.load`](#serverload)
-        - [`server.listener`](#serverlistener)
-        - [`server.methods`](#servermethods)
-        - [`server.mime`](#servermime)
-        - [`server.plugins`](#serverplugins)
-        - [`server.realm`](#serverrealm)
-        - [`server.registrations`](#serverregistrations)
-        - [`server.root`](#serverroot)
-        - [`server.settings`](#serversettings)
-        - [`server.version`](#serverversion)
-    - [`server.auth.api`](#serverauthapi)
-    - [`server.auth.default(options)`](#serverauthdefaultoptions)
-    - [`server.auth.scheme(name, scheme)`](#serverauthschemename-scheme)
-    - [`server.auth.strategy(name, scheme, [mode], [options])`](#serverauthstrategyname-scheme-mode-options)
-    - [`server.auth.test(strategy, request, next)`](#serverauthteststrategy-request-next)
-    - [`server.bind(context)`](#serverbindcontext)
-    - [`server.cache(options)`](#servercacheoptions)
-    - [`server.cache.provision(options, [callback])`](#servercacheprovisionoptions-callback)
-    - [`server.connection([options])`](#serverconnectionoptions)
-    - [`server.decoder(encoding, decoder)`](#serverencoderencoding-decoder)
-    - [`server.decorate(type, property, method, [options])`](#serverdecoratetype-property-method-options)
-    - [`server.dependency(dependencies, [after])`](#serverdependencydependencies-after)
-    - [`server.emit(criteria, data, [callback])`](#serveremitcriteria-data-callback)
-    - [`server.encoder(encoding, encoder)`](#serverencoderencoding-encoder)
-    - [`server.event(events)`](#servereventevents)
-    - [`server.expose(key, value)`](#serverexposekey-value)
-    - [`server.expose(obj)`](#serverexposeobj)
-    - [`server.ext(events)`](#serverextevents)
-    - [`server.ext(event, method, [options])`](#serverextevent-method-options)
-    - [`server.handler(name, method)`](#serverhandlername-method)
-    - [`server.initialize([callback])`](#serverinitializecallback)
-    - [`server.inject(options, [callback])`](#serverinjectoptions-callback)
-    - [`server.log(tags, [data, [timestamp]])`](#serverlogtags-data-timestamp)
-    - [`server.lookup(id)`](#serverlookupid)
-    - [`server.match(method, path, [host])`](#servermatchmethod-path-host)
-    - [`server.method(name, method, [options])`](#servermethodname-method-options)
-    - [`server.method(methods)`](#servermethodmethods)
-    - [`server.on(criteria, listener)`](#serveroncriteria-listener)
-    - [`server.once(criteria, listener)`](#serveroncecriteria-listener)
-    - [`server.path(relativeTo)`](#serverpathrelativeto)
-    - [`server.register(plugins, [options], [callback])`](#serverregisterplugins-options-callback)
-    - [`server.route(options)`](#serverrouteoptions)
-    - [`server.select(labels)`](#serverselectlabels)
-    - [`server.start([callback])`](#serverstartcallback)
-    - [`server.state(name, [options])`](#serverstatename-options)
-    - [`server.stop([options], [callback])`](#serverstopoptions-callback)
-    - [`server.table([host])`](#servertablehost)
-    - [Server events](#server-events)
-        - [Internal events](#internal-events)
-            - [Request logs](#request-logs)
-            - [Server logs](#server-logs)
-- [Plugins](#plugins)
-- [Requests](#requests)
-    - [Request lifecycle](#request-lifecycle)
-    - [Route configuration](#route-configuration)
-        - [Route options](#route-options)
-        - [Route public interface](#route-public-interface)
+  - [`Hapi.server([options])`](#hapiserveroptions)
+  - [Server options](#server-options)
+    - [`address`](#server.options.address)
+    - [`app`](#server.options.app)
+    - [`autoListen`](#server.options.autolisten)
+    - [`cache`](#server.options.cache)
+    - [`compression`](#server.options.compression)
+    - [`debug`](#server.options.debug)
+    - [`host`](#server.options.host)
+    - [`listener`](#server.options.listener)
+    - [`load`](#server.options.load)
+    - [`mime`](#server.options.mime)
+    - [`plugins`](#server.options.plugins)
+    - [`port`](#server.options.port)
+    - [`router`](#server.options.router)
+    - [`routes`](#server.options.routes)
+    - [`state`](#server.options.state)
+    - [`tls`](#server.options.tls)
+    - [`uri`](#server.options.uri)
+  - [Server properties](#server-properties)
+    - [`server.app`](#serverapp)
+    - [`server.decorations`](#serverdecorations)
+    - [`server.info`](#serverinfo)
+    - [`server.load`](#serverload)
+    - [`server.listener`](#serverlistener)
+    - [`server.methods`](#servermethods)
+    - [`server.mime`](#servermime)
+    - [`server.plugins`](#serverplugins)
+    - [`server.realm`](#serverrealm)
+    - [`server.registrations`](#serverregistrations)
+    - [`server.settings`](#serversettings)
+    - [`server.version`](#serverversion)
+  - [`server.auth.api`](#serverauthapi)
+  - [`server.auth.default(options)`](#serverauthdefaultoptions)
+  - [`server.auth.scheme(name, scheme)`](#serverauthschemename-scheme)
+  - [`server.auth.strategy(name, scheme, [mode], [options])`](#serverauthstrategyname-scheme-mode-options)
+  - [`await server.auth.test(strategy, request)`](#await-serverauthteststrategy-request)
+  - [`server.bind(context)`](#serverbindcontext)
+  - [`server.cache(options)`](#servercacheoptions)
+  - [`server.cache.provision(options)`](#servercacheprovisionoptions)
+  - [`server.decoder(encoding, decoder)`](#serverdecoderencoding-decoder)
+  - [`server.decorate(type, property, method, [options])`](#serverdecoratetype-property-method-options)
+  - [`server.dependency(dependencies, [after])`](#serverdependencydependencies-after)
+  - [`server.events.emit(criteria, data)`](#servereventsemitcriteria-data)
+  - [`server.encoder(encoding, encoder)`](#serverencoderencoding-encoder)
+  - [`server.event(events)`](#servereventevents)
+  - [`server.expose(key, value)`](#serverexposekey-value)
+  - [`server.expose(obj)`](#serverexposeobj)
+  - [`server.ext(events)`](#serverextevents)
+  - [`server.ext(event, method, [options])`](#serverextevent-method-options)
+  - [`server.handler(name, method)`](#serverhandlername-method)
+  - [`await server.initialize([callback])`](#await-serverinitializecallback)
+  - [`await server.inject(options)`](#await-serverinjectoptions)
+  - [`server.log(tags, [data, [timestamp]])`](#serverlogtags-data-timestamp)
+  - [`server.lookup(id)`](#serverlookupid)
+  - [`server.match(method, path, [host])`](#servermatchmethod-path-host)
+  - [`server.method(name, method, [options])`](#servermethodname-method-options)
+  - [`server.method(methods)`](#servermethodmethods)
+- [`server.events.on(criteria, listener)`](#servereventsoncriteria-listener)
+- [`server.events.once(criteria, listener)`](#servereventsoncecriteria-listener)
+  - [`server.path(relativeTo)`](#serverpathrelativeto)
+  - [`await server.register(plugins, [options])`](#await-serverregisterplugins-options)
+  - [`server.route(options)`](#serverrouteoptions)
     - [Path parameters](#path-parameters)
     - [Path matching order](#path-matching-order)
-        - [Catch all route](#catch-all-route)
-    - [Route handler](#route-handler)
-    - [Route prerequisites](#route-prerequisites)
-    - [Request object](#request-object)
-        - [Request properties](#request-properties)
-        - [`request.setUrl(url, [stripTrailingSlash])`](#requestseturlurl-stripTrailingSlash)
-        - [`request.setMethod(method)`](#requestsetmethodmethod)
-        - [`request.generateResponse(source, [options])`](#requestgenerateresponsesource-options)
-        - [`request.log(tags, [data, [timestamp]])`](#requestlogtags-data-timestamp)
-        - [`request.getLog([tags], [internal])`](#requestgetlogtags-internal)
-        - [`request.tail([name])`](#requesttailname)
-        - [Request events](#request-events)
-- [Reply interface](#reply-interface)
-    - [`reply([err], [result])`](#replyerr-result)
-        - [Response object](#response-object)
-            - [Response Object Redirect Methods](#response-object-redirect-methods)
-            - [Response events](#response-events)
-        - [Error response](#error-response)
-            - [Error transformation](#error-transformation)
-        - [Flow control](#flow-control)
-    - [`reply.continue([result])`](#replycontinueresult)
-    - [`reply.close([options])`](#replycloseoptions)
-    - [`reply.redirect(uri)`](#replyredirecturi)
-    - [`reply.response(result)`](#replyresponseresult)
-    - [`reply.state(name, value, [options])`](#replystatenamevalueoptions)
-    - [`reply.unstate(name, [options])`](#replyunstatenameoptions)
+    - [Catch all route](#catch-all-route)
+  - [`await server.start([callback])`](#await-serverstartcallback)
+  - [`server.state(name, [options])`](#serverstatename-options)
+  - [`await server.stop([options])`](#await-serverstopoptions)
+  - [`server.table([host])`](#servertablehost)
+  - [Server events](#server-events)
+    - [Internal events](#internal-events)
+      - [Request logs](#request-logs)
+      - [Server logs](#server-logs)
+- [Route options](#route-options)
+  - [`app`](#route.options.app)
+  - [`auth`](#route.options.auth)
+    - [Authentication options](#authentication-options)
+      - [`access`](#route.options.auth.access)
+      - [`scope`](#route.options.auth.access.scope)
+      - [`entity`](#route.options.auth.access.entity)
+      - [`mode`](#route.options.auth.mode)
+      - [`payload`](#route.options.auth.payload)
+      - [`strategies`](#route.options.auth.strategies)
+      - [`strategy`](#route.options.auth.strategy)
+  - [`bind`](#route.options.bind)
+  - [`cache`](#route.options.cache)
+  - [`compression`](#route.options.compression)
+  - [`cors`](#route.options.cors)
+  - [`description`](#route.options.description)
+  - [`ext`](#route.options.ext)
+  - [`files`](#route.options.files)
+  - [`handler`](#route.options.handler)
+  - [`id`](#route.options.id)
+  - [`isInternal`](#route.options.isInternal)
+  - [`json`](#route.options.json)
+  - [`jsonp`](#route.options.jsonp)
+  - [`log`](#route.options.log)
+  - [`notes`](#route.options.notes)
+  - [`payload`](#route.options.payload)
+    - [`allow`](#route.options.payload.allow)
+    - [`compression`](#route.options.payload.compression)
+    - [`defaultContentType`](#route.options.payload.defaultContentType)
+    - [`failAction`](#route.options.payload.failAction)
+    - [`maxBytes`](#route.options.payload.maxBytes)
+    - [`multipart`](#route.options.payload.multipart)
+    - [`output`](#route.options.payload.output)
+    - [`override`](#route.options.payload.override)
+    - [`parse`](#route.options.payload.parse)
+    - [`timeout`](#route.options.payload.timeout)
+    - [`uploads`](#route.options.payload.uploads)
+  - [`plugins`](#route.options.plugins)
+  - [`pre`](#route.options.pre)
+  - [`response`](#route.options.response)
+    - [`emptyStatusCode`](#route.options.response.emptyStatusCode)
+    - [`failAction`](#route.options.response.failAction)
+    - [`modify`](#route.options.response.modify)
+    - [`options`](#route.options.response.options)
+    - [`ranges`](#route.options.response.ranges)
+    - [`sample`](#route.options.response.sample)
+    - [`schema`](#route.options.response.schema)
+    - [`status`](#route.options.response.status)
+  - [`security`](#route.options.security)
+  - [`state`](#route.options.state)
+  - [`tags`](#route.options.tags)
+  - [`timeout`](#route.options.timeout)
+  - [`server`](#route.options.timeout.server)
+  - [`socket`](#route.options.timeout.socket)
+  - [`validate`](#route.options.validate)
+  - [`errorFields`](#route.options.validate.errorFields)
+  - [`failAction`](#route.options.validate.failAction)
+  - [`headers`](#route.options.validate.headers)
+  - [`options`](#route.options.validate.options)
+  - [`params`](#route.options.validate.params)
+  - [`payload`](#route.options.validate.payload)
+  - [`query`](#route.options.validate.query)
+- [Plugins](#plugins)
+- [Request lifecycle](#request-lifecycle)
+  - [Lifecycle methods](#lifecycle-methods)
+  - [`reply([err], [result])`](#replyerr-result)
+    - [Response object](#response-object)
+      - [Response Object Redirect Methods](#response-object-redirect-methods)
+      - [Response events](#response-events)
+    - [Error response](#error-response)
+      - [Error transformation](#error-transformation)
+  - [`reply.continue([result])`](#replycontinueresult)
+  - [`reply.entity(options)`](#replyentityoptions)
+  - [`reply.abort`](#replyabort)
+  - [`reply.close`](#replyclose)
+  - [`reply.redirect(uri)`](#replyredirecturi)
+  - [`reply.response(result)`](#replyresponseresult)
+  - [`h.state(name, value, [options])`](#hstatename-value-options)
+  - [`h.unstate(name, [options])`](#hunstatename-options)
+- [Request](#request)
+  - [Request properties](#request-properties)
+    - [`app`](#request.app)
+    - [`auth`](#request.auth)
+    - [`headers`](#request.headers)
+    - [`info`](#request.info)
+    - [`method`](#request.method)
+    - [`mime`](#request.mime)
+    - [`orig`](#request.orig)
+    - [`params`](#request.params)
+    - [`paramsArray`](#request.paramsArray)
+    - [`path`](#request.path)
+    - [`payload`](#request.payload)
+    - [`plugins`](#request.plugins)
+    - [`pre`](#request.pre)
+    - [`response`](#request.response)
+    - [`preResponses`](#request.preResponses)
+    - [`query`](#request.query)
+    - [`raw`](#request.raw)
+    - [`route`](#request.route)
+    - [`server`](#request.server)
+    - [`state`](#request.state)
+    - [url``](#request.url)
+  - [`request.setUrl(url, [stripTrailingSlash]`](#requestseturlurl-striptrailingslash)
+  - [`request.setMethod(method)`](#requestsetmethodmethod)
+  - [`request.generateResponse(source, [options])`](#requestgenerateresponsesource-options)
+  - [`request.getLog([tags], [internal])`](#requestgetlogtags-internal)
+  - [Request events](#request-events)
+
+<!-- tocstop -->
 
 ## Server
 
-The `Server` object is the main application container. The server manages all incoming connections
-along with all the facilities provided by the framework. A server can contain more than one
-connection (e.g. listen to port `80` and `8080`).
+The server object is the main application container. The server manages all incoming requests
+along with all the facilities provided by the framework. Each server supports a single connection
+(e.g. listen to port `80`).
 
-### `new Server([options])`
+### `Hapi.server([options])`
 
-Creates a new `Server` object where:
-- `options` - optional configuration:
-    - `app` - application-specific configuration which can later be accessed via
-      `server.settings.app`. Note the difference between `server.settings.app` which is
-      used to store static configuration values and [`server.app`](#serverapp) which is meant for
-      storing run-time state. Defaults to `{}`.
-
-    - <a name="server.config.cache"></a>`cache` - sets up server-side caching. Every server
-      includes a default cache for storing application state. By default, a simple memory-based
-      cache is created which has limited capacity and capabilities. **hapi** uses
-      [**catbox**](https://github.com/hapijs/catbox) for its cache which includes support for
-      common storage solutions (e.g. Redis, MongoDB, Memcached, Riak, among others). Caching is only utilized
-      if methods and [plugins](#plugins) explicitly store their state in the cache. The server
-      cache configuration only defines the storage container itself. `cache` can be assigned:
-        - a prototype function (usually obtained by calling `require()` on a **catbox** strategy
-          such as `require('catbox-redis')`). A new **catbox** [client](https://github.com/hapijs/catbox#client) will be created internally using this function.
-        - a configuration object with the following optional keys (unless stated otherwise):
-            - `engine` - a prototype function or **catbox** engine object.
-            - `name` - an identifier used later when provisioning or configuring caching for
-              [server methods](#servermethodname-method-options) or [plugins](#plugins). Each cache
-              name must be unique. A single item may omit the `name` option which defines the
-              default cache. If every cache includes a `name`, a default memory cache is provisioned
-              as well.
-            - `shared` - if `true`, allows multiple cache users to share the same segment (e.g.
-              multiple methods using the same cache storage container). Default to `false`.
-            - `partition` - optional string, defaults to `'hapi-cache'`.
-            - other options passed to the **catbox** strategy used.  Other options are only passed
-              to CatBox when `engine` above is a function and ignored if `engine` is a **catbox**
-              engine object).
-        - an array of the above object for configuring multiple cache instances, each with a unique
-          name. When an array of objects is provided, multiple cache connections are established
-          and each array item (except one) must include a `name`.
-
-    - <a name="server.config.connections"></a>`connections` - sets the default connections
-      configuration which can be overridden by each connection where:
-
-        - `app` - application-specific connection configuration which can be accessed via
-          `connection.settings.app`. Provides a safe place to store application configuration
-          without potential conflicts with the framework internals. Should not be used to configure
-          [plugins](#plugins) which should use `plugins[name]`. Note the difference between
-          `connection.settings.app` which is used to store configuration values and
-          `connection.app` which is meant for storing run-time state.
-
-        - `compression` - if `false`, response content encoding is disabled. Defaults to `true`.
-
-        - `load` - connection load limits configuration where:
-            - `maxHeapUsedBytes` - maximum V8 heap size over which incoming requests are rejected
-              with an HTTP Server Timeout (503) response. Defaults to `0` (no limit).
-            - `maxRssBytes` - maximum process RSS size over which incoming requests are rejected
-              with an HTTP Server Timeout (503) response. Defaults to `0` (no limit).
-            - `maxEventLoopDelay` - maximum event loop delay duration in milliseconds over which
-              incoming requests are rejected with an HTTP Server Timeout (503) response. Defaults
-              to `0` (no limit).
-
-        - `plugins` - plugin-specific configuration which can later be accessed via
-          `connection.settings.plugins`. Provides a place to store and pass connection-specific
-           plugin configuration. `plugins` is an object where each key is a plugin name and the
-           value is the configuration. Note the difference between `connection.settings.plugins`
-           which is used to store configuration values and `connection.plugins` which is meant for
-           storing run-time state.
-
-        - <a name="connection.config.router"></a>`router` - controls how incoming request URIs are
-          matched against the routing table:
-            - `isCaseSensitive` - determines whether the paths '/example' and '/EXAMPLE' are
-              considered different resources. Defaults to `true`.
-            - `stripTrailingSlash` - removes trailing slashes on incoming paths. Defaults to
-              `false`.
-
-        - `routes` - a [route options](#route-options) object used to set the default configuration
-          for every route.
-
-        - `state` - sets the default configuration for every state (cookie) set explicitly via
-          [`server.state()`](#serverstatename-options) or implicitly (without definition) using
-          the [state configuration](#serverstatename-options) object.
-
-    - `debug` - determines which logged events are sent to the console (this should only be used
-      for development and does not affect which events are actually logged internally and
-      recorded). Set to `false` to disable all console logging, or to an object with:
-        - `log` - a string array of server log tags to be displayed via `console.error()` when
-          the events are logged via [`server.log()`](#serverlogtags-data-timestamp) as well as
-          internally generated [server logs](#server-logs). For example, to display all errors,
-          set the option to `['error']`. To turn off all console debug messages set it to `false`.
-          To display all server logs, set it to '*'.
-          Defaults to uncaught errors thrown in external code (these errors are handled
-          automatically and result in an Internal Server Error response) or runtime errors due to
-          developer error.
-        - `request` - a string array of request log tags to be displayed via `console.error()` when
-          the events are logged via [`request.log()`](#requestlogtags-data-timestamp) as well as
-          internally generated [request logs](#request-logs). For example, to display all errors,
-          set the option to `['error']`. To turn off all console debug messages set it to `false`.
-          To display all request logs, set it to '*'.
-          Defaults to uncaught errors thrown in external code (these errors are handled
-          automatically and result in an Internal Server Error response) or runtime errors due to
-          developer error.
-
-    - `load` - process load monitoring where:
-        - `sampleInterval` - the frequency of sampling in milliseconds. Defaults to `0` (no
-          sampling).
-
-    - `mime` - options passed to the [**mimos**](https://github.com/hapijs/mimos) module when
-      generating the mime database used by the server and accessed via
-      [`server.mime`](#servermime).
-
-    - `plugins` - plugin-specific configuration which can later be accessed via
-      `server.settings.plugins`. `plugins` is an object where each key is a plugin name and the
-      value is the configuration. Note the difference between `server.settings.plugins` which is
-      used to store static configuration values and [`server.plugins`](#serverplugins) which is
-      meant for storing run-time state. Defaults to `{}`.
-
-    - `useDomains` - if `false`, will not use node domains to protect against exceptions thrown in
-      handlers and other external code. Defaults to `true`.
-
-Note that the `options` object is deeply cloned and cannot contain any values that are unsafe to
-perform deep copy on.
+Creates a new server object where:
+- `options` - optional [server configuration object](#serveroptions).
 
 ```js
 const Hapi = require('hapi');
-const server = new Hapi.Server({
+const server = Hapi.server({
     cache: require('catbox-redis'),
     load: {
         sampleInterval: 1000
     }
 });
 ```
+
+### Server options
+
+The server options control the behavior of the server object. Note that the options object is
+deeply cloned (with the exception of [`listener`](#server.options.listener) which is shallowly
+copied) and should not contain any values that are unsafe to perform deep copy on.
+
+All options are optionals.
+
+#### <a name="server.options.address" /> `address`
+
+Default value: `'0.0.0.0'` (all available network interfaces).
+
+Sets the hostname or IP address the server will listen on. If not configured, defaults to
+[`host`](#server.options.host) if present, otherwise to all available network interfaces. Set to
+`'127.0.0.1'` or `'localhost'` to restrict the server to only those coming from the same host.
+
+#### <a name="server.options.app" /> `app`
+
+Default value: `{}`.
+
+Provides application-specific configuration which can later be accessed via
+[`server.settings.app`](#serversettings). The framework does not interact with this object. It is
+simply a reference made available anywhere a `server` reference is provided.
+
+Note the difference between `server.settings.app` which is used to store static configuration
+values and [`server.app`](#serverapp) which is meant for storing run-time state.
+
+#### <a name="server.options.autolisten" /> `autoListen`
+
+Default value: `true`.
+
+Used to disable the automatic initialization of the [`listener`](#server.options.listener). When
+`false`, indicates that the [`listener`](#server.options.listener) will be started manually outside
+the framework.
+
+Cannot be set to `true` along with a [`port`](#server.options.port) value.
+
+#### <a name="server.options.cache" /> `cache`
+
+Default value: `{ engine: require('catbox-memory' }`.
+
+Sets up server-side caching providers. Every server includes a default cache for storing
+application state. By default, a simple memory-based cache is created which has limited capacity
+and capabilities.
+
+**hapi** uses [**catbox**](https://github.com/hapijs/catbox) for its cache implementation which
+includes support for common storage solutions (e.g. Redis, MongoDB, Memcached, Riak, among others).
+Caching is only utilized if [methods](#servermethods) and [plugins](#plugins) explicitly store
+their state in the cache.
+
+The server cache configuration only defines the storage container itself. The configuration can be
+assigned one or more (array):
+
+- a class or prototype function (usually obtained by calling `require()` on a **catbox** strategy
+    such as `require('catbox-redis')`). A new **catbox** [client](https://github.com/hapijs/catbox#client)
+    will be created internally using this function.
+
+- a configuration object with the following:
+
+    - `engine` - a class, a prototype function, or a **catbox** engine object.
+    - `name` - an identifier used later when provisioning or configuring caching for
+        [server methods](#servermethods) or [plugins](#plugins). Each cache name must be unique.
+        A single item may omit the `name` option which defines the default cache. If every cache
+        includes a `name`, a default memory cache is provisioned as well.
+    - `shared` - if `true`, allows multiple cache users to share the same segment (e.g.
+        multiple methods using the same cache storage container). Default to `false`.
+    - `partition` - optional string used to isolate cached data. Defaults to `'hapi-cache'`.
+    - other options passed to the **catbox** strategy used. Other options are only passed to
+      **catbox** when `engine` above is a class or function and ignored if `engine` is a **catbox**
+      engine object).
+
+#### <a name="server.options.compression" /> `compression`
+
+Default value: `true`.
+
+Defines server handling of content encoding requests. If `false`, response content encoding is
+disabled and no compression is performed by the server.
+
+#### <a name="server.options.debug" /> `debug`
+
+Default value: `{ request: ['implementation'] }`.
+
+Determines which logged events are sent to the console. This should only be used for development
+and does not affect which events are actually logged internally and recorded. Set to `false` to
+disable all console logging, or to an object with:
+
+- `log` - a string array of server log tags to be displayed via `console.error()` when
+    the events are logged via [`server.log()`](#serverlogtags-data-timestamp) as well as
+    internally generated [server logs](#server-logs). Defaults to no output.
+
+- `request` - a string array of request log tags to be displayed via `console.error()` when
+    the events are logged via [`request.log()`](#requestlogtags-data-timestamp) as well as
+    internally generated [request logs](#request-logs). For example, to display all errors,
+    set the option to `['error']`. To turn off all console debug messages set it to `false`.
+    To display all request logs, set it to '*'.
+    Defaults to uncaught errors thrown in external code (these errors are handled
+    automatically and result in an Internal Server Error response) or runtime errors due to
+    developer error.
+
+For example, to display all errors, set the `log` or `request` to `['error']`. To turn off all
+output set the `log` or `request` to `false`. To display all server logs, set the `log` or
+`request` to '*'. To disable all debug information, set `debug` to `false`.
+
+#### <a name="server.options.host" /> `host`
+
+Default value: the operating system hostname and if not available, to `'localhost'`.
+
+The public hostname or IP address. Used to set [`server.info.host`](#serverinfo) and
+[`server.info.uri`](#serverinfo) and as [`address`](#server.options.address) is none provided.
+
+#### <a name="server.options.listener" /> `listener`
+
+Default value: none.
+
+An optional node HTTP (or HTTPS) [`http.Server`](http://nodejs.org/api/http.html#http_class_http_server)
+object (or an object with a compatible interface).
+
+If the `listener` needs to be manually started, set [`autoListen`](#server.options.autolisten) to
+`false`.
+
+If the `listener` uses TLS, set [`tls`](#server.options.tls) to `true`.
+
+#### <a name="server.options.load" /> `load`
+
+Default value: `{ sampleInterval: 0 }`.
+
+Server excessive load handling limits where:
+
+- `sampleInterval` - the frequency of sampling in milliseconds. When set to `0`, the other load
+  options are ignored. Defaults to `0` (no sampling).
+
+- `maxHeapUsedBytes` - maximum V8 heap size over which incoming requests are rejected with an HTTP
+  Server Timeout (503) response. Defaults to `0` (no limit).
+
+- `maxRssBytes` - maximum process RSS size over which incoming requests are rejected with an HTTP
+  Server Timeout (503) response. Defaults to `0` (no limit).
+
+- `maxEventLoopDelay` - maximum event loop delay duration in milliseconds over which incoming
+  requests are rejected with an HTTP Server Timeout (503) response. Defaults to `0` (no limit).
+
+#### <a name="server.options.mime" /> `mime`
+
+Default value: none.
+
+Options passed to the [**mimos**](https://github.com/hapijs/mimos) module when generating the mime
+database used by the server (and accessed via [`server.mime`](#servermime)):
+
+- `override` - an object hash that is merged into the built in mime information specified
+  [here](https://github.com/jshttp/mime-db). Each key value pair represents a single mime object.
+  Each override value must contain:
+
+    - `key` - the lower-cased mime-type string (e.g. `'application/javascript'`).
+
+    - `value` - an object following the specifications outlined [here](https://github.com/jshttp/mime-db#data-structure).
+      Additional values include:
+
+        - `type` - specify the `type` value of result objects, defaults to `key`.
+
+        - `predicate` - method with signature `function(mime)` when this mime type is found in the
+          database, this function will execute to allows customizations.
+
+```js
+const options = {
+    mime: {
+        override: {
+            'node/module': {
+                source: 'iana',
+                compressible: true,
+                extensions: ['node', 'module', 'npm'],
+                type: 'node/module'
+            },
+            'application/javascript': {
+                source: 'iana',
+                charset: 'UTF-8',
+                compressible: true,
+                extensions: ['js', 'javascript'],
+                type: 'text/javascript'
+            },
+            'text/html': {
+                predicate: function(mime) {
+                    if (someCondition) {
+                        mime.foo = 'test';
+                    }
+                    else {
+                        mime.foo = 'bar';
+                    }
+                    return mime;
+                }
+            }
+        }
+    }
+};
+```
+
+#### <a name="server.options.plugins" /> `plugins`
+
+Default value: `{}`.
+
+Plugin-specific configuration which can later be accessed via [`server.settings.plugins`](#serversettings).
+`plugins` is an object where each key is a plugin name and the value is the configuration.
+Note the difference between [`server.settings.plugins`](#serversettings) which is used to store
+static configuration values and [`server.plugins`](#serverplugins) which is meant for storing
+run-time state.
+
+#### <a name="server.options.port" /> `port`
+
+Default value: `0` (an ephemeral port).
+
+The TCP port the server will listen to. Defaults the next available port when the server is started
+(and assigned to [`server.info.port`](#serverinfo)).
+
+If `port` is a string containing a '/' character, it is used as a UNIX domain socket path.
+If it starts with '\\.\pipe', it is used as a Windows named pipe.
+
+#### <a name="server.options.router" /> `router`
+
+Default value: `{ isCaseSensitive: true, stripTrailingSlash: false }`.
+
+Controls how incoming request URIs are matched against the routing table:
+
+- `isCaseSensitive` - determines whether the paths '/example' and '/EXAMPLE' are considered
+  different resources. Defaults to `true`.
+
+- `stripTrailingSlash` - removes trailing slashes on incoming paths. Defaults to `false`.
+
+#### <a name="server.options.routes" /> `routes`
+
+Default value: none.
+
+A [route options](#route-options) object used as the default configuration for every route.
+
+#### <a name="server.options.state" /> `state`
+
+Default value:
+```js
+{
+    strictHeader: true,
+    ignoreErrors: false,
+    isSecure: true,
+    isHttpOnly: true,
+    isSameSite: 'Strict',
+    encoding: 'none'
+}
+```
+
+Sets the default configuration for every state (cookie) set explicitly via
+[`server.state()`](#serverstatename-options) or implicitly (without definition) using the
+[state configuration](#serverstatename-options) object.
+
+#### <a name="server.options.tls" /> `tls`
+
+Default value: none.
+
+Used to create an HTTPS connection. The `tls` object is passed unchanged to the node
+HTTPS server as described in the [node HTTPS documentation](http://nodejs.org/api/https.html#https_https_createserver_options_requestlistener).
+
+Set to `true` when passing a [`listener`](#server.options.listener) object that has been configured
+to use TLS directly.
+
+#### <a name="server.options.uri" /> `uri`
+
+Default value: constructed from runtime server information.
+
+The full public URI without the path (e.g. 'http://example.com:8080'). If present, used as the
+server [`server.info.uri`](#serverinfo), otherwise constructed from the server settings.
 
 ### Server properties
 
@@ -235,144 +483,104 @@ conflicts with the framework internals. The data can be accessed whenever the se
 accessible. Initialized with an empty object.
 
 ```js
-const Hapi = require('hapi');
-const server = new Hapi.Server();
+const server = Hapi.server();
+
 server.app.key = 'value';
 
-const handler = function (request, reply) {
+const handler = function (request, h) {
 
-    return reply(request.server.app.key);
+    return request.server.app.key;        // 'value'
 };
 ```
 
-#### `server.connections`
-
-An array containing the server's connections. When the server object is returned from
-[`server.select()`](#serverselectlabels), the `connections` array only includes the connections
-matching the selection criteria.
-
-```js
-const server = new Hapi.Server();
-server.connection({ port: 80, labels: 'a' });
-server.connection({ port: 8080, labels: 'b' });
-
-// server.connections.length === 2
-
-const a = server.select('a');
-
-// a.connections.length === 1
-```
-
-Each connection object contains:
-- `settings` - the connection configuration object passed to
-  [`server.connection()`](#serverconnectionoptions) after applying the server defaults.
-- `server` - the connection's `Server` object.
-- `type` - set to `'tcp'` is the connection is listening on a TCP port, otherwise to `'socket'`(a
-  UNIX domain socket or a Windows named pipe).
-- `registrations` -
-- `states` -
-- `auth` -
-- `plugins` -
-- `app` -
-- `listener` -
-- `info` -
-- `inject()` -
-- `table()` -
-- `lookup()` -
-- `match()` -
-
-### `server.decorations`
+#### `server.decorations`
 
 Provides access to the decorations already applied to various framework interfaces. The object must
 not be modified directly, but only through [`server.decorate`](#serverdecoratetype-property-method-options).
-Contains the following keys:
-    - `'request'` - decorations on the [Request object](#request-object).
-    - `'reply'` - decorations on the [reply interface](#reply-interface).
-    - `'server'` - decorations on the [Server](#server) object.
+Contains:
+
+- `request` - decorations on the [request object](#request-object).
+- `toolkit` - decorations on the [response toolkit](#response-toolkit).
+- `server' - decorations on the [server](#server) object.
 
 ```js
 const Hapi = require('hapi');
-const server = new Hapi.Server();
-server.connection({ port: 80 });
+const server = Hapi.server(({ port: 80 });
 
 const success = function () {
 
     return this.response({ status: 'ok' });
 };
 
-server.decorate('reply', 'success', success);
-return server.decorations.reply;		// ['success']
+server.decorate('toolkit', 'success', success);
+console.log(server.decorations.toolkit);            // ['success']
 ```
-
 
 #### `server.info`
 
-When the server contains exactly one connection, `info` is an object containing information about
-the sole connection where:
-- `id` - a unique connection identifier (using the format '{hostname}:{pid}:{now base36}').
-- `created` - the connection creation timestamp.
-- `started` - the connection start timestamp (`0` when stopped).
+An object containing information about the server where:
+
+- `id` - a unique server identifier (using the format '{hostname}:{pid}:{now base36}').
+
+- `created` - server creation timestamp.
+
+- `started` - server start timestamp (`0` when stopped).
+
 - `port` - the connection port based on the following rules:
-    - the configured port value before the server has been started.
-    - the actual port assigned when no port is configured or set to `0` after the server has been
-      started.
-- `host` - the host name the connection was configured to. Defaults to the operating system
-  hostname when available, otherwise `'localhost'`.
+
+    - before the server has been started: the configured [`port`](#server.options.port) value.
+    - after the server has been started: the actual port assigned when no port is configured or was
+      set to `0`.
+
+- `host` - The [`host`](#server.options.host) configuration value.
+
 - `address` - the active IP address the connection was bound to after starting. Set to `undefined`
   until the server has been started or when using a non TCP port (e.g. UNIX domain socket).
+
 - `protocol` - the protocol used:
+
     - `'http'` - HTTP.
     - `'https'` - HTTPS.
     - `'socket'` - UNIX domain socket or Windows named pipe.
-- `uri` - a string representing the connection (e.g. 'http://example.com:8080' or
-  'socket:/unix/domain/socket/path'). Contains the `uri` setting if provided, otherwise constructed
-  from the available settings. If no `port` is available or set to `0`, the `uri` will not include
-  a port component.
 
-When the server contains more than one connection, each [`server.connections`](#serverconnections)
-array member provides its own `connection.info`.
+- `uri` - a string representing the connection (e.g. 'http://example.com:8080' or
+  'socket:/unix/domain/socket/path'). Contains the [`uri`](#server.options.uri) value if set,
+  otherwise constructed from the available settings. If no [`port`](#server.options.port) is
+  configured or is set to `0`, the `uri` will not include a port component until the server is
+  started.
 
 ```js
-const server = new Hapi.Server();
-server.connection({ port: 80 });
+const Hapi = require('hapi');
+const server = Hapi.server(({ port: 80 });
 
-// server.info.port === 80
-
-server.connection({ port: 8080 });
-
-// server.info === null
-// server.connections[1].info.port === 8080
+console.log(server.info.port);            // 80
 ```
 
 #### `server.load`
 
-An object containing the process load metrics (when `load.sampleInterval` is enabled):
+An object containing the process load metrics (when [`load.sampleInterval`](#server.options.load)
+is enabled):
+
 - `eventLoopDelay` - event loop delay milliseconds.
 - `heapUsed` - V8 heap usage.
 - `rss` - RSS memory usage.
 
-
 ```js
 const Hapi = require('hapi');
-const server = new Hapi.Server({ load: { sampleInterval: 1000 } });
+const server = Hapi.server({ load: { sampleInterval: 1000 } });
 
 console.log(server.load.rss);
 ```
 
 #### `server.listener`
 
-When the server contains exactly one connection, `listener` is the node HTTP server object of the
-sole connection.
-
-When the server contains more than one connection, each [`server.connections`](#serverconnections)
-array member provides its own `connection.listener`.
+The node HTTP server object.
 
 ```js
 const Hapi = require('hapi');
 const SocketIO = require('socket.io');
 
-const server = new Hapi.Server();
-server.connection({ port: 80 });
+const server = Hapi.server({ port: 80 });
 
 const io = SocketIO.listen(server.listener);
 io.sockets.on('connection', (socket) => {
@@ -383,30 +591,26 @@ io.sockets.on('connection', (socket) => {
 
 #### `server.methods`
 
-An object providing access to the [server methods](#servermethodname-method-options) where each
-server method name is an object property.
+Server methods are functions registered with the server and used throughout the application as a
+common utility. Their advantage is in the ability to configure them to use the built-in cache and
+share across multiple request handlers without having to create a common module.
+
+`sever.methods` is an object which provides access to the methods registered via
+[server.method()](#servermethodname-method-options) where each server method name is an object
+property.
 
 ```js
 const Hapi = require('hapi');
-const server = new Hapi.Server();
+const server = Hapi.server();
 
-const add = function (a, b, next) {
-
-    return next(null, a + b);
-};
-
-server.method('add', add);
-
-server.methods.add(1, 2, (err, result) => {
-
-    // result === 3
-});
+server.method('add', (a, b) => (a + b));
+const result = server.methods.add(1, 2);    // 3
 ```
 
 #### `server.mime`
 
 Provides access to the server MIME database used for setting content-type information. The object
-must not be modified directly but only through the `mime` server setting.
+must not be modified directly but only through the [`mime`](#server.options.mime) server setting.
 
 ```js
 const Hapi = require('hapi');
@@ -424,24 +628,26 @@ const options = {
     }
 };
 
-const server = new Hapi.Server(options);
-// server.mime.path('code.js').type === 'application/javascript'
-// server.mime.path('file.npm').type === 'node/module'
+const server = Hapi.server(options);
+console.log(server.mime.path('code.js').type)        // 'application/javascript'
+console.log(server.mime.path('file.npm').type)        // 'node/module'
 ```
 
 #### `server.plugins`
 
-An object containing the values exposed by each plugin registered where each key is a plugin name
+An object containing the values exposed by each registered plugin where each key is a plugin name
 and the values are the exposed properties by each plugin using
 [`server.expose()`](#serverexposekey-value). Plugins may set the value of the
 `server.plugins[name]` object directly or via the `server.expose()` method.
 
 ```js
-exports.register = function (server, options, next) {
+exports.register = function (server, options) {
 
     server.expose('key', 'value');
-    // server.plugins.example.key === 'value'
-    return next();
+    server.plugins.example.other = 'other';
+
+    console.log(server.plugins.example.key);    // 'value'
+    console.log(server.plugins.example.other);    // 'other'
 };
 
 exports.register.attributes = {
@@ -451,26 +657,41 @@ exports.register.attributes = {
 
 #### `server.realm`
 
-The realm object contains server-wide or plugin-specific state that can be shared across various
-methods. For example, when calling [`server.bind()`](#serverbindcontext), the active realm
+The realm object contains sandboxed server settings specific to each plugin or authentication
+strategy. When registering a plugin or an authentication scheme, a `server` object reference is
+provided with a new `server.realm` container specific to that registration. It allows each plugin
+to maintain its own settings without leaking and affecting other plugins.
+
+For example, a plugin can set a default file path for local resources without breaking other
+plugins' configured paths. When calling [`server.bind()`](#serverbindcontext), the active realm's
 `settings.bind` property is set which is then used by routes and extensions added at the same level
-(server root or plugin). Realms are a limited version of a sandbox where plugins can maintain state
-used by the framework when adding routes, extensions, and other properties.
+(server root or plugin).
+
+The `server.realm` object contains:
 
 - `modifiers` - when the server object is provided as an argument to the plugin `register()`
   method, `modifiers` provides the registration preferences passed the
   [`server.register()`](#serverregisterplugins-options-callback) method and includes:
+
     - `route` - routes preferences:
+
         - `prefix` - the route path prefix used by any calls to [`server.route()`](#serverrouteoptions)
           from the server. Note that if a prefix is used and the route path is set to `'/'`, the
           resulting path will not include the trailing slash.
         - `vhost` - the route virtual host settings used by any calls to
           [`server.route()`](#serverrouteoptions) from the server.
+
+- `parent` - the realm of the parent server object, or `null` for the root server.
+
 - `plugin` - the active plugin name (empty string if at the server root).
+
 - `pluginOptions` - the plugin options passed at registration.
+
 - `plugins` - plugin-specific state to be shared only among activities sharing the same active
   state. `plugins` is an object where each key is a plugin name and the value is the plugin state.
+
 - `settings` - settings overrides:
+
     - `files.relativeTo`
     - `bind`
 
@@ -479,17 +700,17 @@ for the `plugins` property which can be directly manipulated by each plugin, set
 inside `plugins[name]`.
 
 ```js
-exports.register = function (server, options, next) {
+exports.register = function (server, options) {
 
     console.log(server.realm.modifiers.route.prefix);
-    return next();
 };
 ```
 
 #### `server.registrations`
 
-When the server contains exactly one connection, `registrations` is an object where each key is a
-registered plugin name and value contains:
+An object of the currently registered plugins where each key is a registered plugin name and the
+value is an object containing:
+
 - `version` - the plugin version.
 - `name` - the plugin name.
 - `options` - optional options passed to the plugin during registration.
@@ -498,24 +719,19 @@ registered plugin name and value contains:
 When the server contains more than one connection, each [`server.connections`](#serverconnections)
 array member provides its own `connection.registrations`.
 
-#### `server.root`
-
-The root server object containing all the connections and the root server methods (e.g. `start()`,
-`stop()`, `connection()`).
-
 #### `server.settings`
 
 The server configuration object after defaults applied.
 
 ```js
 const Hapi = require('hapi');
-const server = new Hapi.Server({
+const server = Hapi.server({
     app: {
         key: 'value'
     }
 });
 
-// server.settings.app === { key: 'value' }
+console.log(server.settings.app);   // { key: 'value' }
 ```
 
 #### `server.version`
@@ -524,22 +740,19 @@ The **hapi** module version number.
 
 ```js
 const Hapi = require('hapi');
-const server = new Hapi.Server();
-// server.version === '8.0.0'
+const server = Hapi.server();
+
+console.log(server.version);        // '17.0.0'
 ```
 
 ### `server.auth.api`
 
-An object where each key is a strategy name and the value is the exposed strategy API. Available
-only when the authentication scheme exposes an API by returning an `api` key in the object returned
-from its implementation function.
-
-When the server contains more than one connection, each [`server.connections`](#serverconnections)
-array member provides its own `connection.auth.api` object.
+An object where each key is an authentication strategy name and the value is the exposed strategy
+API. Available only when the authentication scheme exposes an API by returning an `api` key in the
+object returned from its implementation function.
 
 ```js
-const server = new Hapi.Server();
-server.connection({ port: 80 });
+const server = Hapi.server({ port: 80 });
 
 const scheme = function (server, options) {
 
@@ -549,15 +762,14 @@ const scheme = function (server, options) {
                 x: 5
             }
         },
-        authenticate: function (request, reply) {
+        authenticate: function (request, h) {
 
-            const req = request.raw.req;
-            const authorization = req.headers.authorization;
+            const authorization = request.headers.authorization;
             if (!authorization) {
-                return reply(Boom.unauthorized(null, 'Custom'));
+                throw Boom.unauthorized(null, 'Custom');
             }
 
-            return reply.continue({ credentials: { user: 'john' } });
+            return h.authenticated{ credentials: { user: 'john' } });
         }
     };
 };
@@ -571,8 +783,12 @@ console.log(server.auth.api.default.settings.x);    // 5
 ### `server.auth.default(options)`
 
 Sets a default strategy which is applied to every route where:
-- `options` - a string with the default strategy name or an object with a specified strategy or
- strategies using the same format as the [route `auth` handler options](#route.config.auth).
+
+- `options` - one of:
+
+    - a string with the default strategy name
+    - an object with a specified strategy or strategies using the same format as the
+      [route `auth` handler options](#route.config.auth).
 
 The default does not apply when the route config specifies `auth` as `false`, or has an
 authentication strategy configured (contains the `strategy` or `strategies` authentication settings).
@@ -587,8 +803,7 @@ The default auth strategy configuration can be accessed via `connection.auth.set
 obtain the active authentication configuration of a route, use `connection.auth.lookup(request.route)`.
 
 ```js
-const server = new Hapi.Server();
-server.connection({ port: 80 });
+const server = Hapi.server({ port: 80 });
 
 server.auth.scheme('custom', scheme);
 server.auth.strategy('default', 'custom');
@@ -597,9 +812,9 @@ server.auth.default('default');
 server.route({
     method: 'GET',
     path: '/',
-    handler: function (request, reply) {
+    handler: function (request, h) {
 
-        return reply(request.auth.credentials.user);
+        return request.auth.credentials.user;
     }
 });
 ```
@@ -607,6 +822,7 @@ server.route({
 ### `server.auth.scheme(name, scheme)`
 
 Registers an authentication scheme where:
+
 - `name` - the scheme name.
 - `scheme` - the method implementing the scheme with signature `function(server, options)` where:
     - `server` - a reference to the server object the scheme is added to.
@@ -614,35 +830,29 @@ Registers an authentication scheme where:
 
 The `scheme` method must return an object with the following keys:
 - `api` - optional object which is exposed via the [`server.auth.api`](#serverauthapi) object.
-- `authenticate(request, reply)` - required function called on each incoming request configured
+- `authenticate(request, h)` - required function called on each incoming request configured
   with the authentication scheme where:
     - `request` - the [request object](#request-object).
-    - `reply` - the [reply interface](#reply-interface) the authentication method must call when
+    - `h` - the [response toolkit](#response-toolkit) the authentication method must use when
       done authenticating the request where:
-        - `reply(err, response, result)` - is called if authentication failed where:
-            - `err` - any authentication error.
-            - `response` - any authentication response action such as redirection. Ignored if `err`
-              is present, otherwise required.
+        - `h.authenticated(result)` - is called if authentication succeeded where:
             - `result` - an object containing:
                 - `credentials` - the authenticated credentials.
                 - `artifacts` - optional authentication artifacts.
-        - `reply.continue(result)` - is called if authentication succeeded where:
-            - `result` - same object as `result` above.
-- `payload(request, reply)` - optional function called to authenticate the request payload where:
+        - `h.unauthenticated(err, [result])` - is called if authentication failed where:
+            - `err` - any authentication error.
+            - `result` - an optional object containing:
+                - `credentials` - the authenticated credentials.
+                - `artifacts` - optional authentication artifacts.
+- `payload(request, h)` - optional function called to authenticate the request payload where:
     - `request` - the [request object](#request-object).
-    - `reply(err, response)` - is called if authentication failed where:
-        - `err` - any authentication error.
-        - `response` - any authentication response action such as redirection. Ignored if `err`
-            is present, otherwise required.
-    - `reply.continue()` - is called if payload authentication succeeded.
-- `response(request, reply)` - optional function called to decorate the response with
+    - `h` - the response toolkit. Return `h.continue` if payload authentication succeeded, otherwise
+      throw an error or return an error response.
+- `response(request, h)` - optional function called to decorate the response with
   authentication headers before the response headers or payload is written where:
     - `request` - the [request object](#request-object).
-    - `reply(err, response)` - is called if an error occurred where:
-        - `err` - any authentication error.
-        - `response` - any authentication response to send instead of the current response. Ignored
-          if `err` is present, otherwise required.
-    - `reply.continue()` - is called if the operation succeeded.
+    - `h` - the response toolkit. Return `h.continue` if payload authentication succeeded, otherwise
+      throw an error or return an error response.
 - `options` - an optional object with the following keys:
     - `payload` - if `true`, requires payload validation as part of the scheme and forbids routes
       from disabling payload auth validation. Defaults to `false`.
@@ -661,21 +871,20 @@ failed due to bad payload. If the error has no message but includes a scheme nam
 `auth.payload` configuration is set to `'optional'`.
 
 ```js
-const server = new Hapi.Server();
-server.connection({ port: 80 });
+const server = Hapi.server({ port: 80 });
 
 const scheme = function (server, options) {
 
     return {
-        authenticate: function (request, reply) {
+        authenticate: function (request, h) {
 
             const req = request.raw.req;
             const authorization = req.headers.authorization;
             if (!authorization) {
-                return reply(Boom.unauthorized(null, 'Custom'));
+                throw Boom.unauthorized(null, 'Custom');
             }
 
-            return reply.continue({ credentials: { user: 'john' } });
+            return h.authenticated({ credentials: { user: 'john' } });
         }
     };
 };
@@ -695,8 +904,7 @@ Registers an authentication strategy where:
 - `options` - scheme options based on the scheme requirements.
 
 ```js
-const server = new Hapi.Server();
-server.connection({ port: 80 });
+const server = Hapi.server({ port: 80 });
 
 server.auth.scheme('custom', scheme);
 server.auth.strategy('default', 'custom');
@@ -706,15 +914,15 @@ server.route({
     path: '/',
     config: {
         auth: 'default',
-        handler: function (request, reply) {
+        handler: function (request, h) {
 
-            return reply(request.auth.credentials.user);
+            return request.auth.credentials.user;
         }
     }
 });
 ```
 
-### `server.auth.test(strategy, request, next)`
+### `await server.auth.test(strategy, request)`
 
 Tests a request against an authentication strategy where:
 - `strategy` - the strategy name registered with
@@ -729,8 +937,7 @@ also does not perform payload authentication. It is limited to the basic strateg
 execution. It does not include verifying scope, entity, or other route properties.
 
 ```js
-const server = new Hapi.Server();
-server.connection({ port: 80 });
+const server = Hapi.server({ port: 80 });
 
 server.auth.scheme('custom', scheme);
 server.auth.strategy('default', 'custom');
@@ -738,16 +945,15 @@ server.auth.strategy('default', 'custom');
 server.route({
     method: 'GET',
     path: '/',
-    handler: function (request, reply) {
+    handler: function (request, h) {
 
-        request.server.auth.test('default', request, (err, credentials) => {
-
-            if (err) {
-                return reply({ status: false });
-            }
-
-            return reply({ status: true, user: credentials.name });
-        });
+        try {
+            const credentials = await request.server.auth.test('default', request);
+            return { status: true, user: credentials.name };
+        }
+        catch (err) {
+            return { status: false };
+        }
     }
 });
 ```
@@ -756,27 +962,27 @@ server.route({
 
 Sets a global context used as the default bind object when adding a route or an extension where:
 - `context` - the object used to bind `this` in handler and
-  [extension methods](#serverextevent-method-options).
+  [extension methods](#serverextevent-method-options) as well as made available as `h.context` when
+  the response toolkit is available.
 
 When setting context inside a plugin, the context is applied only to methods set up by the plugin.
 Note that the context applies only to routes and extensions added after it has been set. Ignored if
 the method being bound is an arrow function.
 
 ```js
-const handler = function (request, reply) {
+const handler = function (request, h) {
 
-    return reply(this.message);
+    return this.message;    // Or h.context.message
 };
 
-exports.register = function (server, options, next) {
+exports.register = function (server, options) {
 
     const bind = {
         message: 'hello'
     };
 
     server.bind(bind);
-    server.route({ method: 'GET', path: '/', handler: handler });
-    return next();
+    server.route({ method: 'GET', path: '/', handler });
 };
 ```
 
@@ -789,7 +995,7 @@ Provisions a cache segment within the server cache facility where:
     - `expiresAt` - time of day expressed in 24h notation using the 'HH:MM' format, at which point
       all cache records expire. Uses local time. Cannot be used together with `expiresIn`.
     - `generateFunc` - a function used to generate a new cache item if one is not found in the
-      cache when calling `get()`. The method's signature is `function(id, next)` where:
+      cache when calling `get()`. The method's signature is `function(id)` where:
           - `id` - the `id` string or object provided to the `get()` method.
           - `next` - the method called when the new item is returned with the signature
             `function(err, value, ttl)` where:
@@ -825,8 +1031,7 @@ Provisions a cache segment within the server cache facility where:
       `false`.
 
 ```js
-const server = new Hapi.Server();
-server.connection({ port: 80 });
+const server = Hapi.server({ port: 80 });
 
 const cache = server.cache({ segment: 'countries', expiresIn: 60 * 60 * 1000 });
 cache.set('norway', { capital: 'oslo' }, null, (err) => {
@@ -838,7 +1043,7 @@ cache.set('norway', { capital: 'oslo' }, null, (err) => {
 });
 ```
 
-### `server.cache.provision(options, [callback])`
+### `server.cache.provision(options)`
 
 Provisions a server cache as described in [`server.cache`](#server.config.cache) where:
 - `options` - same as the server `cache` configuration options.
@@ -852,8 +1057,7 @@ Note that if the server has been initialized or started, the cache will be autom
 to match the state of any other provisioned server cache.
 
 ```js
-const server = new Hapi.Server();
-server.connection({ port: 80 });
+const server = Hapi.server({ port: 80 });
 
 server.initialize((err) => {
 
@@ -871,104 +1075,6 @@ server.initialize((err) => {
 });
 ```
 
-### `server.connection([options])`
-
-Adds an incoming server connection where:
-- `options` - a connection configuration object or array of objects with the following optional keys:
-	- `host` - the public hostname or IP address. Used only to set `server.info.host` and
-	  `server.info.uri`. If not configured, defaults to the operating system hostname and if not
-	  available, to `'localhost'`.
-	- `address` - sets the host name or IP address the connection will listen on. If not configured,
-	  defaults to `host` if present, otherwise to all available network interfaces (i.e. `'0.0.0.0'`).
-	  Set to `127.0.0.1` or `localhost` to restrict connection to only those coming from the same
-	  machine.
-	- `port` - the TCP port the connection will listen to. Defaults to an ephemeral port (`0`) which
-	  uses an available port when the server is started (and assigned to `server.info.port`). If `port`
-	  is a string containing a '/' character, it is used as a UNIX domain socket path and if it starts
-	  with '\\.\pipe' as a Windows named pipe.
-	- `uri` - the full public URI without the path (e.g. 'http://example.com:8080'). If present, used
-	  as the connection `info.uri` otherwise constructed from the connection settings.
-	- `listener` - optional node.js HTTP (or HTTPS)
-	  [`http.Server`](http://nodejs.org/api/http.html#http_class_http_server) object or any compatible
-	  object. If the `listener` needs to be manually started, set `autoListen` to `false`. If the
-	  `listener` uses TLS, set `tls` to `true`.
-	- `autoListen` - indicates that the `connection.listener` will be started manually outside the
-	  framework. Cannot be specified with a `port` setting. Defaults to `true`.
-	- `labels` - a string or string array of labels used to [`server.select()`](#serverselectlabels)
-	  specific connections matching the specified labels. Defaults to an empty array `[]` (no labels).
-	- `tls` - used to create an HTTPS connection. The `tls` object is passed unchanged as options to
-	  the node.js HTTPS server as described in the
-	  [node.js HTTPS documentation](http://nodejs.org/api/https.html#https_https_createserver_options_requestlistener).
-	  Set to `true` when passing a `listener` object that has been configured to use TLS directly.
-	- Any [connections configuration server defaults](#server.config.connections) can be included to
-	  override and customize the individual connection.
-
-Returns a server object with the new connections selected.
-
-Must be called before any other server method that modifies connections is called for it to apply
-to the new connection (e.g. [`server.state()`](#serverstatename-options)).
-
-Note that the `options` object is deeply cloned (with the exception of `listener` which is
-shallowly copied) and cannot contain any values that are unsafe to perform deep copy on.
-
-```js
-const Hapi = require('hapi');
-const server = new Hapi.Server();
-
-const web = server.connection({ port: 8000, host: 'example.com', labels: ['web'] });
-const admin = server.connection({ port: 8001, host: 'example.com', labels: ['admin'] });
-
-// server.connections.length === 2
-// web.connections.length === 1
-// admin.connections.length === 1
-```
-
-Special care must be taken when adding connections inside a plugin `register()` method. Because
-plugin connections selection happens before registration, any connection added inside the plugin
-will not be included in the `server.connections` array. For this reason, the `server` object
-provided to the `register()` method does not support the `connection()` method.
-
-However, connectionless plugins (plugins with `attributes.connections` set to `false`) provide
-a powerful bridge and allow plugins to add connections. This is done by using the `register()`
-`server` argument only for adding the new connection using `server.connection()` and then
-using the return value from the `connection()` method (which is another `server` with the new
-connection selected) to perform any other actions that should include the new connection (only).
-
-While this pattern can be accomplished without setting the plugin to connectionless mode, it
-makes the code safer and easier to maintain because it will prevent trying to use the `server`
-argument to manage the new connection and will throw an exception (instead of just failing
-silently). Without setting the plugin to connectionless mode, you must use
-`server.root.connection()` which will return a `server` object scoped for the root realm, not
-the current plugin.
-
-For example:
-```js
-exports.register = function (srv, options, next) {
-
-    // Use the 'srv' argument to add a new connection
-
-    const server = srv.connection();
-
-    // Use the 'server' return value to manage the new connection
-
-    server.route({
-        path: '/',
-        method: 'GET',
-        handler: function (request, reply) {
-
-            return reply('hello');
-        }
-    });
-
-    return next();
-};
-
-exports.register.attributes = {
-    name: 'example',
-    connections: false
-};
-```
-
 ### `server.decoder(encoding, decoder)`
 
 Registers a custom content decoding compressor to extend the built-in support for `'gzip'` and
@@ -981,8 +1087,7 @@ Registers a custom content decoding compressor to extend the built-in support fo
 ```js
 const Zlib = require('zlib');
 const Hapi = require('hapi');
-const server = new Hapi.Server();
-server.connection({ port: 80, routes: { payload: { compression: { special: { chunkSize: 16 * 1024 } } } } });
+const server = Hapi.server({ port: 80, routes: { payload: { compression: { special: { chunkSize: 16 * 1024 } } } } });
 
 server.decoder('special', (options) => Zlib.createGunzip(options));
 ```
@@ -992,7 +1097,7 @@ server.decoder('special', (options) => Zlib.createGunzip(options));
 Extends various framework interfaces with custom methods where:
 - `type` - the interface being decorated. Supported types:
     - `'request'` - adds methods to the [Request object](#request-object).
-    - `'reply'` - adds methods to the [reply interface](#reply-interface).
+    - `'toolkit'` - adds methods to the [response toolkit](#response-toolkit).
     - `'server'` - adds methods to the [Server](#server) object.
 - `property` - the object decoration key name.
 - `method` - the extension function or other value.
@@ -1006,22 +1111,21 @@ selection.
 
 ```js
 const Hapi = require('hapi');
-const server = new Hapi.Server();
-server.connection({ port: 80 });
+const server = Hapi.server({ port: 80 });
 
 const success = function () {
 
     return this.response({ status: 'ok' });
 };
 
-server.decorate('reply', 'success', success);
+server.decorate('toolkit', 'success', success);
 
 server.route({
     method: 'GET',
     path: '/',
-    handler: function (request, reply) {
+    handler: function (request, h) {
 
-        return reply.success();
+        return h.success();
     }
 });
 ```
@@ -1036,7 +1140,7 @@ Used within a plugin to declare a required dependency on other [plugins](#plugin
 - `after` - an optional function called after all the specified dependencies have been registered
   and before the server starts. The function is only called if the server is initialized or started. If a circular
   dependency is detected, an exception is thrown (e.g. two plugins each has an `after` function
-  to be called after the other). The function signature is `function(server, next)` where:
+  to be called after the other). The function signature is `function(server)` where:
     - `server` - the server the `dependency()` method was called on.
     - `next` - the callback function the method must call to return control over to the application
       and complete the registration process. The function signature is `function(err)` where:
@@ -1048,16 +1152,14 @@ plugins (those with `attributes.connections` set to `false`) can only depend on 
 plugins (server initialization will fail even of the dependency is loaded but is not connectionless).
 
 ```js
-const after = function (server, next) {
+const after = function (server) {
 
     // Additional plugin registration logic
-    return next();
 };
 
-exports.register = function (server, options, next) {
+exports.register = function (server, options) {
 
     server.dependency('yar', after);
-    return next();
 };
 ```
 
@@ -1065,9 +1167,8 @@ Dependencies can also be set via the register `attributes` property (does not su
 `after`):
 
 ```js
-exports.register = function (server, options, next) {
+exports.register = function (server, options) {
 
-    return next();
 };
 
 register.attributes = {
@@ -1077,7 +1178,7 @@ register.attributes = {
 };
 ```
 
-### `server.emit(criteria, data, [callback])`
+### `server.events.emit(criteria, data)`
 
 Emits a custom application event update to all the subscribed listeners where:
 - `criteria` - the event update criteria which must be one of:
@@ -1099,8 +1200,7 @@ This is done to detect event name misspelling and invalid event activities.
 
 ```js
 const Hapi = require('hapi');
-const server = new Hapi.Server();
-server.connection({ port: 80 });
+const server = Hapi.server({ port: 80 });
 
 server.event('test');
 server.on('test', (update) => console.log(update));
@@ -1119,8 +1219,7 @@ Registers a custom content encoding compressor to extend the built-in support fo
 ```js
 const Zlib = require('zlib');
 const Hapi = require('hapi');
-const server = new Hapi.Server();
-server.connection({ port: 80, routes: { compression: { special: { chunkSize: 16 * 1024 } } } });
+const server = Hapi.server({ port: 80, routes: { compression: { special: { chunkSize: 16 * 1024 } } } });
 
 server.encoder('special', (options) => Zlib.createGzip(options));
 ```
@@ -1156,8 +1255,7 @@ Register custom application events where:
 
 ```js
 const Hapi = require('hapi');
-const server = new Hapi.Server();
-server.connection({ port: 80 });
+const server = Hapi.server({ port: 80 });
 
 server.event('test');
 server.on('test', (update) => console.log(update));
@@ -1171,10 +1269,9 @@ Used within a plugin to expose a property via `server.plugins[name]` where:
 - `value` - the value assigned.
 
 ```js
-exports.register = function (server, options, next) {
+exports.register = function (server, options) {
 
     server.expose('util', function () { console.log('something'); });
-    return next();
 };
 ```
 
@@ -1184,10 +1281,9 @@ Merges an object into to the existing content of `server.plugins[name]` where:
 - `obj` - the object merged into the exposed properties container.
 
 ```js
-exports.register = function (server, options, next) {
+exports.register = function (server, options) {
 
     server.expose({ util: function () { console.log('something'); } });
-    return next();
 };
 ```
 
@@ -1205,14 +1301,14 @@ Registers an extension function in one of the available extension points where:
         - `'onPostStop'` - called after the connection listeners are stopped.
     - `method` - a function or an array of functions to be executed at a specified point during request
       processing. The required extension function signature is:
-        - server extension points: `function(server, next)` where:
+        - server extension points: `function(server)` where:
             - `server` - the server object.
             - `next` - the continuation method with signature `function(err)`.
             - `this` - the object provided via `options.bind` or the current active context set with
               [`server.bind()`](#serverbindcontext).
         - request extension points: `function(request, reply)` where:
             - `request` - the [request object](#request-object).
-            - `reply` - the [reply interface](#reply-interface) which is used to return control back to the
+            - `reply` - the [reply interface](#response-toolkit) which is used to return control back to the
               framework. To continue normal execution of the [request lifecycle](#request-lifecycle),
               `reply.continue()` must be called. If the extension type is `'onPostHandler'` or
               `'onPreResponse'`, a single argument passed to `reply.continue()` will override the
@@ -1236,25 +1332,24 @@ Registers an extension function in one of the available extension points where:
 
 ```js
 const Hapi = require('hapi');
-const server = new Hapi.Server();
-server.connection({ port: 80 });
+const server = Hapi.server({ port: 80 });
 
 server.ext({
     type: 'onRequest',
-    method: function (request, reply) {
+    method: function (request, h) {
 
         // Change all requests to '/test'
         request.setUrl('/test');
-        return reply.continue();
+        return h.continue;
     }
 });
 
-const handler = function (request, reply) {
+const handler = function (request, h) {
 
-    return reply({ status: 'ok' });
+    return { status: 'ok' };
 };
 
-server.route({ method: 'GET', path: '/test', handler: handler });
+server.route({ method: 'GET', path: '/test', handler });
 server.start((err) => { });
 
 // All requests will get routed to '/test'
@@ -1267,22 +1362,21 @@ Registers a single extension event using the same properties as used in
 
 ```js
 const Hapi = require('hapi');
-const server = new Hapi.Server();
-server.connection({ port: 80 });
+const server = Hapi.server({ port: 80 });
 
-server.ext('onRequest', function (request, reply) {
+server.ext('onRequest', function (request, h) {
 
     // Change all requests to '/test'
     request.setUrl('/test');
-    return reply.continue();
+    return h.continue;
 });
 
-const handler = function (request, reply) {
+const handler = function (request, h) {
 
-    return reply({ status: 'ok' });
+    return { status: 'ok' };
 };
 
-server.route({ method: 'GET', path: '/test', handler: handler });
+server.route({ method: 'GET', path: '/test', handler });
 server.start((err) => { });
 
 // All requests will get routed to '/test'
@@ -1295,20 +1389,19 @@ Registers a new handler type to be used in routes where:
   type.
 - `method` - the function used to generate the route handler using the signature
   `function(route, options)` where:
-    - `route` - the [route public interface](#route-public-interface) object.
+    - `route` - the [route information](#request.route).
     - `options` - the configuration object provided in the handler config.
 
 ```js
 const Hapi = require('hapi');
-const server = new Hapi.Server();
-server.connection({ host: 'localhost', port: 8000 });
+const server = Hapi.server({ host: 'localhost', port: 8000 });
 
 // Defines new handler for routes on this server
 const handler = function (route, options) {
 
-    return function (request, reply) {
+    return function (request, h) {
 
-        return reply('new handler: ' + options.msg);
+        return 'new handler: ' + options.msg;
     }
 };
 
@@ -1330,18 +1423,18 @@ route default configuration.
 
 ```js
 const Hapi = require('hapi');
-const server = new Hapi.Server();
-server.connection({ host: 'localhost', port: 8000 });
+const server = Hapi.server({ host: 'localhost', port: 8000 });
 
 const handler = function (route, options) {
 
-    return function (request, reply) {
+    return function (request, h) {
 
-        return reply('new handler: ' + options.msg);
+        return 'new handler: ' + options.msg;
     }
 };
 
 // Change the default payload processing for this handler
+
 handler.defaults = {
     payload: {
         output: 'stream',
@@ -1352,7 +1445,7 @@ handler.defaults = {
 server.handler('test', handler);
 ```
 
-### `server.initialize([callback])`
+### `await server.initialize([callback])`
 
 Initializes the server (starts the caches, finalizes plugin registration) but does not start listening
 on the connection ports, where:
@@ -1373,8 +1466,7 @@ first to reset the server state.
 ```js
 const Hapi = require('hapi');
 const Hoek = require('hoek');
-const server = new Hapi.Server();
-server.connection({ port: 80 });
+const server = Hapi.server({ port: 80 });
 
 server.initialize((err) => {
 
@@ -1382,7 +1474,7 @@ server.initialize((err) => {
 });
 ```
 
-### `server.inject(options, [callback])`
+### `await server.inject(options)`
 
 When the server contains exactly one connection, injects a request into the sole connection
 simulating an incoming HTTP request without making an actual socket connection. Injection is useful
@@ -1443,15 +1535,14 @@ array member provides its own `connection.inject()`.
 
 ```js
 const Hapi = require('hapi');
-const server = new Hapi.Server();
-server.connection({ port: 80 });
+const server = Hapi.server({ port: 80 });
 
-const handler = function (request, reply) {
+const handler = function (request, h) {
 
-    return reply('Success!');
+    return 'Success!';
 };
 
-server.route({ method: 'GET', path: '/', handler: handler });
+server.route({ method: 'GET', path: '/', handler });
 
 server.inject('/', (res) => {
 
@@ -1477,8 +1568,7 @@ information or output to the console. The arguments are:
 
 ```js
 const Hapi = require('hapi');
-const server = new Hapi.Server();
-server.connection({ port: 80 });
+const server = Hapi.server({ port: 80 });
 
 server.on('log', (event, tags) => {
 
@@ -1495,18 +1585,17 @@ server.log(['test', 'error'], 'Test event');
 When the server contains exactly one connection, looks up a route configuration where:
 - `id` - the route identifier as set in the [route options](#route-options).
 
-returns the [route public interface](#route-public-interface) object if found, otherwise `null`.
+returns the [route information](#request.route) if found, otherwise `null`.
 
 ```js
-const server = new Hapi.Server();
-server.connection();
+const server = Hapi.server();
 server.route({
     method: 'GET',
     path: '/',
     config: {
-        handler: function (request, reply) {
+        handler: function (request, h) {
 
-            return reply();
+            return null;
         },
         id: 'root'
     }
@@ -1525,18 +1614,17 @@ When the server contains exactly one connection, looks up a route configuration 
 - `path` - the requested path (must begin with '/').
 - `host` - optional hostname (to match against routes with `vhost`).
 
-returns the [route public interface](#route-public-interface) object if found, otherwise `null`.
+returns the [route information](#request.route) if found, otherwise `null`.
 
 ```js
-const server = new Hapi.Server();
-server.connection();
+const server = Hapi.server();
 server.route({
     method: 'GET',
     path: '/',
     config: {
-        handler: function (request, reply) {
+        handler: function (request, h) {
 
-            return reply();
+            return null;
         },
         id: 'root'
     }
@@ -1550,10 +1638,7 @@ array member provides its own `connection.match()` method.
 
 ### `server.method(name, method, [options])`
 
-Registers a server method. Server methods are functions registered with the server and used
-throughout the application as a common utility. Their advantage is in the ability to configure them
-to use the built-in cache and share across multiple request handlers without having to create a
-common module.
+Registers a server method.
 
 Methods are registered via `server.method(name, method, [options])` where:
 - `name` - a unique method name used to invoke the method via `server.methods[name]`.
@@ -1565,7 +1650,7 @@ Methods are registered via `server.method(name, method, [options])` where:
     - `drop(arg1, arg2, ..., argn, callback)` - function that can be used to clear the cache for a given key.
     - `stats` - an object with cache statistics, see stats documentation for **catbox**.
 - `method` - the method function with the signature is one of:
-    - `function(arg1, arg2, ..., argn, next)` where:
+    - `function(arg1, arg2, ..., argn)` where:
         - `arg1`, `arg2`, etc. - the method function arguments.
         - `next` - the function called when the method is done with the signature
           `function(err, result, [ttl])` where:
@@ -1595,14 +1680,13 @@ Methods are registered via `server.method(name, method, [options])` where:
 
 ```js
 const Hapi = require('hapi');
-const server = new Hapi.Server();
-server.connection({ port: 80 });
+const server = Hapi.server({ port: 80 });
 
 // Simple arguments
 
-const add = function (a, b, next) {
+const add = function (a, b) {
 
-    return next(null, a + b);
+    return a + b;
 };
 
 server.method('sum', add, { cache: { expiresIn: 2000, generateTimeout: 100 } });
@@ -1614,7 +1698,7 @@ server.methods.sum(4, 5, (err, result) => {
 
 // Object argument
 
-const addArray = function (array, next) {
+const addArray = function (array) {
 
     let sum = 0;
     array.forEach((item) => {
@@ -1622,7 +1706,7 @@ const addArray = function (array, next) {
         sum += item;
     });
 
-    return next(null, sum);
+    return sum;
 };
 
 server.method('sumObj', addArray, {
@@ -1664,9 +1748,9 @@ where:
     - `options` - optional settings.
 
 ```js
-const add = function (a, b, next) {
+const add = function (a, b) {
 
-    next(null, a + b);
+    return a + b;
 };
 
 server.method({
@@ -1681,7 +1765,7 @@ server.method({
 });
 ```
 
-## `server.on(criteria, listener)`
+## `server.events.on(criteria, listener)`
 
 Subscribe a handler to an event where:
 - `criteria` - the subscription criteria which must be one of:
@@ -1727,22 +1811,20 @@ Subscribe a handler to an event where:
 
 ```js
 const Hapi = require('hapi');
-const server = new Hapi.Server();
-server.connection({ port: 80 });
+const server = Hapi.server({ port: 80 });
 
 server.event('test');
 server.on('test', (update) => console.log(update));
 server.emit('test', 'hello');
 ```
 
-## `server.once(criteria, listener)`
+## `server.events.once(criteria, listener)`
 
 Same as calling [`server.on()`](#serveroncriteria-listener) with the `count` option set to `1`.
 
 ```js
 const Hapi = require('hapi');
-const server = new Hapi.Server();
-server.connection({ port: 80 });
+const server = Hapi.server({ port: 80 });
 
 server.event('test');
 server.once('test', (update) => console.log(update));
@@ -1761,17 +1843,16 @@ If no path is set, the connection `files.relativeTo` configuration is used. The 
 to routes added after it has been set.
 
 ```js
-exports.register = function (server, options, next) {
+exports.register = function (server, options) {
 
     // Assuming the Inert plugin was registered previously
 
     server.path(__dirname + '../static');
     server.route({ path: '/file', method: 'GET', handler: { file: './test.html' } });
-    next();
 };
 ```
 
-### `server.register(plugins, [options], [callback])`
+### `await server.register(plugins, [options])`
 
 Registers a plugin where:
 - `plugins` - an object or array of objects where each one is either:
@@ -1800,11 +1881,6 @@ Registers a plugin where:
 
 If no `callback` is provided, a `Promise` object is returned.
 
-Note that plugin registration are recorded on each of the available connections. When plugins
-express a dependency on other plugins, both have to be loaded into the same connections for the
-dependency requirement to be fulfilled. It is recommended that plugin registration happen after
-all the server connections are created via `server.connection()`.
-
 ```js
 server.register({
     register: require('plugin_name'),
@@ -1822,42 +1898,166 @@ server.register({
 ### `server.route(options)`
 
 Adds a connection route where:
-- `options` - a [route configuration object](#route-configuration) or an array of configuration
-  objects.
+- `options` - a route configuration object or an array of configuration objects where each object
+  contains:
+    - `path` - (required) the absolute path used to match incoming requests (must begin with '/').
+      Incoming requests are compared to the configured paths based on the server's
+      [`router`](#server.options.router) configuration. The path can include named parameters
+      enclosed in `{}` which  will be matched against literal values in the request as described in
+      [Path parameters](#path-parameters).
+
+    - `method` - (required) the HTTP method. Typically one of 'GET', 'POST', 'PUT', 'PATCH',
+      'DELETE', or 'OPTIONS'. Any HTTP method is allowed, except for 'HEAD'. Use `'*'` to match
+      against any HTTP method (only when an exact match was not found, and any match with a
+      specific method will be given a higher priority over a wildcard match). Can be assigned an
+      array of methods which has the same result as adding the same route with different methods
+      manually.
+
+    - `vhost` - (optional) a domain string or an array of domain strings for limiting the route to
+      only requests with a matching host header field. Matching is done against the hostname part
+      of the header only (excluding the port). Defaults to all hosts.
+
+    - `handler` - (required when [`handler`](#route.options.handler) is not set) the route
+      handler function called to generate the response after successful authentication and
+      validation.
+      
+    - `config` - additional [route options](#route-options). The `config` value can be an object
+      or a function that returns an object using the signature `function(server)` where `server` is
+      the server the route is being added to and `this` is bound to the current realm's `bind` option.
+
+Note that the `options` object is deeply cloned (with the exception of `bind` which is shallowly
+copied) and cannot contain any values that are unsafe to perform deep copy on.
 
 ```js
 const Hapi = require('hapi');
-const server = new Hapi.Server();
-server.connection({ port: 80 });
+const server = Hapi.server({ port: 80 });
 
-server.route({ method: 'GET', path: '/', handler: function (request, reply) { return reply('ok'); } });
+// Handler in top level
+
+const status = function (request, h) {
+
+    return 'ok';
+};
+
+server.route({ method: 'GET', path: '/status', handler: status });
+
+// Handler in config
+
+const user = {
+    cache: { expiresIn: 5000 },
+    handler: function (request, h) {
+
+        return { name: 'John' };
+    }
+};
+
+server.route({ method: 'GET', path: '/user', config: user });
+```
+
+```js
+const Hapi = require('hapi');
+const server = Hapi.server({ port: 80 });
+
+server.route({ method: 'GET', path: '/', handler: function (request, h) { return 'ok'; } });
 server.route([
-    { method: 'GET', path: '/1', handler: function (request, reply) { return reply('ok'); } },
-    { method: 'GET', path: '/2', handler: function (request, reply) { return reply('ok'); } }
+    { method: 'GET', path: '/1', handler: function (request, h) { return 'ok'; } },
+    { method: 'GET', path: '/2', handler: function (request, h) { return 'ok'; } }
 ]);
 ```
 
-### `server.select(labels)`
+#### Path parameters
 
-Selects a subset of the server's connections where:
-- `labels` - a single string or array of strings of labels used as a logical OR statement to select
-  all the connections with matching labels in their configuration.
+Parameterized paths are processed by matching the named parameters to the content of the incoming
+request path at that path segment. For example, '/book/{id}/cover' will match '/book/123/cover' and
+`request.params.id` will be set to `'123'`. Each path segment (everything between the opening '/'
+and the closing '/' unless it is the end of the path) can only include one named parameter. A
+parameter can cover the entire segment ('/{param}') or part of the segment ('/file.{ext}').  A path
+parameter may only contain letters, numbers and underscores, e.g. '/{file-name}' is invalid
+and '/{file_name}' is valid.
 
-Returns a server object with `connections` set to the requested subset. Selecting again on a
-selection operates as a logic AND statement between the individual selections.
+An optional '?' suffix following the parameter name indicates an optional parameter (only allowed
+if the parameter is at the ends of the path or only covers part of the segment as in
+'/a{param?}/b'). For example, the route '/book/{id?}' matches '/book/' with the value of
+`request.params.id` set to an empty string `''`.
 
 ```js
 const Hapi = require('hapi');
-const server = new Hapi.Server();
-server.connection({ port: 80, labels: ['a', 'b'] });
-server.connection({ port: 8080, labels: ['a', 'c'] });
-server.connection({ port: 8081, labels: ['b', 'c'] });
+const server = Hapi.server({ port: 80 });
 
-const a = server.select('a');     // 80, 8080
-const ac = a.select('c');         // 8080
+const getAlbum = function (request, h) {
+
+    return ('You asked for ' +
+        (request.params.song ? request.params.song + ' from ' : '') +
+        request.params.album);
+};
+
+server.route({
+    path: '/{album}/{song?}',
+    method: 'GET',
+    handler: getAlbum
+});
 ```
 
-### `server.start([callback])`
+In addition to the optional `?` suffix, a parameter name can also specify the number of matching
+segments using the `*` suffix, followed by a number greater than 1. If the number of expected parts
+can be anything, then use `*` without a number (matching any number of segments can only be used in
+the last path segment).
+
+```js
+const Hapi = require('hapi');
+const server = Hapi.server({ port: 80 });
+
+const getPerson = function (request, h) {
+
+    const nameParts = request.params.name.split('/');
+    return { first: nameParts[0], last: nameParts[1] };
+};
+
+server.route({
+    path: '/person/{name*2}',   // Matches '/person/john/doe'
+    method: 'GET',
+    handler: getPerson
+});
+```
+
+#### Path matching order
+
+The router iterates through the routing table on each incoming request and executes the first (and
+only the first) matching route. Route matching is done based on the combination of the request path
+and the HTTP verb (e.g. 'GET, 'POST'). The query is excluded from the routing logic. Requests are
+matched in a deterministic order where the order in which routes are added does not matter.
+
+Routes are matched based on the specificity of the route which is evaluated at each segment of the
+incoming request path. Each request path is split into its segment (the parts separated by `'/'`).
+The segments are compared to the routing table one at a time and are matched against the most
+specific path until a match is found. If no match is found, the next match is tried.
+
+When matching routes, string literals (no path parameter) have the highest priority, followed by
+mixed parameters (`'/a{p}b'`), parameters (`'/{p}'`), and then wildcard (`/{p*}`).
+
+Note that mixed parameters are slower to compare as they cannot be hashed and require an array
+iteration over all the regular expressions representing the various mixed parameter at each
+routing table node.
+
+#### Catch all route
+
+If the application needs to override the default Not Found (404) error response, it can add a
+catch-all route for a specific method or all methods. Only one catch-all route can be defined per
+server connection.
+
+```js
+const Hapi = require('hapi');
+const server = Hapi.server({ port: 80 });
+
+const handler = function (request, h) {
+
+    return h.response('The page was not found').code(404);
+};
+
+server.route({ method: '*', path: '/{p*}', handler });
+```
+
+### `await server.start([callback])`
 
 Starts the server connections by listening for incoming requests on the configured port of each
 listener (unless the connection was configured with `autoListen` set to `false`), where:
@@ -1882,8 +2082,7 @@ invoked.
 ```js
 const Hapi = require('hapi');
 const Hoek = require('hoek');
-const server = new Hapi.Server();
-server.connection({ port: 80 });
+const server = Hapi.server({ port: 80 });
 
 server.start((err) => {
 
@@ -1910,7 +2109,7 @@ across multiple requests. Registers a cookie definitions where:
     - `domain` - the domain scope. Defaults to `null` (no domain).
     - `autoValue` - if present and the cookie was not received from the client or explicitly set by
       the route handler, the cookie is automatically added to the response with the provided value.
-      The value can be a function with signature `function(request, next)` where:
+      The value can be a function with signature `function(request)` where:
         - `request` - the [request object](#request-object).
         - `next` - the continuation function using the `function(err, value)` signature.
     - `encoding` - encoding performs on the provided value before serialization. Options are:
@@ -1941,8 +2140,7 @@ State defaults can be modified via the server `connections.routes.state` configu
 
 ```js
 const Hapi = require('hapi');
-const server = new Hapi.Server();
-server.connection({ port: 80 });
+const server = Hapi.server({ port: 80 });
 
 // Set cookie definition
 
@@ -1955,7 +2153,7 @@ server.state('session', {
 
 // Set state in route handler
 
-const handler = function (request, reply) {
+const handler = function (request, h) {
 
     let session = request.state.session;
     if (!session) {
@@ -1964,12 +2162,12 @@ const handler = function (request, reply) {
 
     session.last = Date.now();
 
-    return reply('Success').state('session', session);
+    return h.response('Success').state('session', session);
 };
 ```
 
 Registered cookies are automatically parsed when received. Parsing rules depends on the route
-[`state.parse`](#route.config.state) configuration. If an incoming registered cookie fails parsing,
+[`state.parse`](#route.options.state) configuration. If an incoming registered cookie fails parsing,
 it is not included in `request.state`, regardless of the `state.failAction` setting. When
 `state.failAction` is set to `'log'` and an invalid cookie value is received, the server will emit
 a `'request-internal'` event. To capture these errors subscribe to the `'request-internal'` events
@@ -1977,8 +2175,7 @@ and filter on `'error'` and `'state'` tags:
 
 ```js
 const Hapi = require('hapi');
-const server = new Hapi.Server();
-server.connection({ port: 80 });
+const server = Hapi.server({ port: 80 });
 
 server.on('request-internal', (request, event, tags) => {
 
@@ -1988,7 +2185,7 @@ server.on('request-internal', (request, event, tags) => {
 });
 ```
 
-### `server.stop([options], [callback])`
+### `await server.stop([options])`
 
 Stops the server's connections by refusing to accept any new connections or requests (existing
 connections will continue until closed or timeout), where:
@@ -2003,8 +2200,7 @@ If no `callback` is provided, a `Promise` object is returned.
 
 ```js
 const Hapi = require('hapi');
-const server = new Hapi.Server();
-server.connection({ port: 80 });
+const server = Hapi.server({ port: 80 });
 
 server.stop({ timeout: 60 * 1000 }, (err) => {
 
@@ -2031,9 +2227,8 @@ will override each other and will produce an incomplete result.
 
 ```js
 const Hapi = require('hapi');
-const server = new Hapi.Server();
-server.connection({ port: 80, host: 'example.com' });
-server.route({ method: 'GET', path: '/example', handler: function (request, reply) { return reply(); } });
+const server = Hapi.server({ port: 80, host: 'example.com' });
+server.route({ method: 'GET', path: '/example', handler: function (request, h) { return null; } });
 
 const table = server.table();
 ```
@@ -2043,9 +2238,8 @@ array `table` item value of an individual connection:
 
 ```js
 const Hapi = require('hapi');
-const server = new Hapi.Server();
-server.connection({ port: 80, host: 'example.com' });
-server.route({ method: 'GET', path: '/example', handler: function (request, reply) { return reply(); } });
+const server = Hapi.server({ port: 80, host: 'example.com' });
+server.route({ method: 'GET', path: '/example', handler: function (request, h) { return null; } });
 
 const table = server.connections[0].table();
 
@@ -2079,8 +2273,6 @@ The server object inherits from `Events.EventEmitter` and emits the following ev
 - `'response'` - emitted after the response is sent back to the client (or when the client
   connection closed and no response sent, in which case `request.response` is `null`). Single event
   per request.
-- `'tail'` - emitted when a request finished processing, including any registered tails. Single
-  event per request.
 - `'route'` - emitted when a route is added to a connection. Note that if a route is added to
   multiple connections at the same time, each will emit a separate event. Note that the `route`
   object must not be modified.
@@ -2132,7 +2324,7 @@ server.on('request-error', (request, err) => {
 });
 ```
 
-The `'response'` and `'tail'` events include the [request object](#request-object):
+The `'response'` event include the [request object](#request-object):
 
 ```js
 server.on('response', (request) => {
@@ -2141,11 +2333,11 @@ server.on('response', (request) => {
 });
 ```
 
-The `'route'` event includes the [route public interface](#route-public-interface), the connection,
-and the server object used to add the route (e.g. the result of a plugin select operation):
+The `'route'` event includes the [route information](#request.route), and the server object used to
+add the route (e.g. the result of a plugin select operation):
 
 ```js
-server.on('route', (route, connection, server) => {
+server.on('route', (route, server) => {
 
     console.log('New route added: ' + route.path);
 });
@@ -2194,11 +2386,6 @@ Emitted by the server `'request-internal'` event:
 - `request` `error` - the request stream emitted an error. Includes the error.
 - `request` `server` `timeout` `error` - the request took too long to process by the server.
   Includes the timeout configuration value and the duration.
-- `tail` `add` - a request tail was added. Includes the tail name and id.
-- `tail` `remove` - a request tail was removed. Includes the tail name and id.
-- `tail` `remove` `last` - the last request tail was removed. Includes the tail name and id.
-- `tail` `remove` `error` - failed to remove a request tail (already removed). Includes the tail
-  name and id.
 - `state` `error` - the request included an invalid cookie or cookies. Includes the cookies and
   error details.
 - `state` `response` `error` - the response included an invalid cookie which prevented generating a
@@ -2225,13 +2412,859 @@ Emitted by the server `'log'` event:
 - `connection` `client` `error` - a `clientError` event was received from the HTTP or HTTPS
   listener. The event data is the error object received.
 
+## Route options
+
+Each route can be customized to change the default behavior of the request lifecycle.
+
+### <a name="route.options.app" /> `app`
+
+Application-specific route configuration state. Should not be used by [plugins](#plugins) which
+should use `options.plugins[name]` instead.
+
+### <a name="route.options.auth" /> `auth`
+
+Route authentication configuration. Value can be:
+
+- `false` to disable authentication if a default strategy is set.
+
+- a string with the name of an authentication strategy registered with
+  [`server.auth.strategy()`](#serverauthstrategyname-scheme-mode-options). The strategy will be
+  set to `'required'` mode.
+
+- an [authentication configuration object](#authentication-options).
+
+#### Authentication options
+
+##### <a name="route.options.auth.access" /> `access`
+
+Default value: none.
+
+An object or array of objects specifying the route access rules. Each rule is evaluated against an
+incoming request and access is granted if at least one of the rules matches. Each rule object must
+include at least one of [`scope`](#route.options.auth.access.scope) or
+[`entity`](#route.options.auth.access.entity).
+
+##### <a name="route.options.auth.access.scope" /> `scope`
+
+Default value: `false` (no scope requirements).
+
+The application scope required to access the route. Value can be a scope string or an
+array of scope strings. When authenticated, the credentials object `scope` property must contain
+at least one of the scopes defined to access the route.
+
+If a scope string begins with a `+` character, that scope is required. If a scope string begins
+with a `!` character, that scope is forbidden. For example, the scope `['!a', '+b', 'c', 'd']`
+means the incoming request credentials' `scope` must not include 'a', must include 'b', and must
+include one of 'c' or 'd'.
+
+You may also access properties on the request object (`query` and `params`) to populate a dynamic
+scope by using the '{' and '}' characters around the property name, such as `'user-{params.id}'`.
+
+##### <a name="route.options.auth.access.entity" /> `entity`
+
+Default value: `'any'`.
+
+The required authenticated entity type. If set, must match the `entity` value of the request
+authenticated credentials. Available values:
+
+- `'any'` - the authentication can be on behalf of a user or application.
+- `'user'` - the authentication must be on behalf of a user which is identified by the presence of
+  a `'user'` attribute in the `credentials` object returned by the authentication strategy.
+- `'app'` - the authentication must be on behalf of an application which is identified by the lack
+  of presence of a `user` attribute in the `credentials` object returned by the authentication
+  strategy.
+
+##### <a name="route.options.auth.mode" /> `mode`
+
+Default value: `'required'`.
+
+The authentication mode. Available values:
+
+- `'required'` - authentication is required.
+- `'optional'` - authentication is optional - the request must include valid credentials or no
+  credentials at all.
+- `'try'` - similar to `'optional'`, any request credentials are attempted authentication, but if
+  the credentials are invalid, the request proceeds regardless of the authentication error.
+
+##### <a name="route.options.auth.payload" /> `payload`
+
+Default value: `false`, unless the scheme requires payload authentication.
+
+If set, the incoming request payload is authenticated after it is processed. Requires a strategy
+with payload authentication support (e.g. [Hawk](#https://github.com/hueniverse/hawk)). Cannot be
+set to a value other than `'required'` when the scheme sets the authentication `options.payload` to
+`true`.
+
+Available values:
+
+- `false` - no payload authentication.
+- `'required'` - payload authentication required.
+- `'optional'` - payload authentication performed only when the client includes payload
+  authentication information (e.g. `hash` attribute in Hawk).
+
+##### <a name="route.options.auth.strategies" /> `strategies`
+
+Default value: the default strategy set via [`server.auth.default()`](#serverauthdefaultoptions).
+
+An array of string strategy names in the order they should be attempted. Cannot be used together
+with [`strategy`](#route.options.auth.strategy).
+
+##### <a name="route.options.auth.strategy" /> `strategy`
+
+Default value: the default strategy set via [`server.auth.default()`](#serverauthdefaultoptions).
+
+A string strategy names. Cannot be used together with [`strategies`](#route.options.auth.strategies).
+
+### <a name="route.options.bind" /> `bind`
+
+Default value: `null`.
+
+An object passed back to the provided `handler` (via `this`) when called. Ignored if the method is
+an arrow function.
+
+### <a name="route.options.cache" /> `cache`
+
+Default value: `{ privacy: 'default', statuses: [200], otherwise: 'no-cache' }`.
+
+If the route method is 'GET', the route can be configured to include HTTP caching directives in the
+response. Caching can be customized using an object with the following options:
+
+- `privacy` - determines the privacy flag included in client-side caching using the 'Cache-Control'
+  header. Values are:
+
+    - `'default'` - no privacy flag.
+    - `'public'` - mark the response as suitable for public caching.
+    - `'private'` - mark the response as suitable only for private caching.
+
+- `expiresIn` - relative expiration expressed in the number of milliseconds since the
+  item was saved in the cache. Cannot be used together with `expiresAt`.
+
+- `expiresAt` - time of day expressed in 24h notation using the 'HH:MM' format, at which
+  point all cache records for the route expire. Cannot be used together with `expiresIn`.
+
+- `statuses` - an array of HTTP response status code numbers (e.g. `200`) which are allowed to
+  include a valid caching directive.
+
+- `otherwise` - a string with the value of the 'Cache-Control' header when caching is disabled.
+
+The default `Cache-Control: no-cache` header can be disabled by setting `cache` to `false`.
+
+### <a name="route.options.compression" /> `compression`
+
+An object where each key is a content-encoding name and each value is an object with the desired
+encoder settings. Note that decoder settings are set in [`compression`](#route.options.payload.compression).
+
+### <a name="route.options.cors" /> `cors`
+
+Default value: `false` (no CORS headers).
+
+The [Cross-Origin Resource Sharing](http://www.w3.org/TR/cors/) protocol allows browsers to make
+cross-origin API calls. CORS is required by web applications running inside a browser which are
+loaded from a different domain than the API server. To enable, set `cors` to `true`, or to an
+object with the following options:
+
+- `origin` - an array of allowed origin servers strings ('Access-Control-Allow-Origin'). The array
+  can contain any combination of fully qualified origins along with origin strings containing a
+  wildcard `'*'` character, or a single `'*'` origin string. Defaults to any origin `['*']`.
+
+- `maxAge` - number of seconds the browser should cache the CORS response
+  ('Access-Control-Max-Age'). The greater the value, the longer it will take before the browser
+  checks for changes in policy. Defaults to `86400` (one day).
+
+- `headers` - a strings array of allowed headers ('Access-Control-Allow-Headers'). Defaults to
+  `['Accept', 'Authorization', 'Content-Type', 'If-None-Match']`.
+
+- `additionalHeaders` - a strings array of additional headers to `headers`. Use this to keep the
+  default headers in place.
+
+- `exposedHeaders` - a strings array of exposed headers ('Access-Control-Expose-Headers').
+  Defaults to `['WWW-Authenticate', 'Server-Authorization']`.
+
+- `additionalExposedHeaders` - a strings array of additional headers to `exposedHeaders`. Use this
+  to keep the default headers in place.
+
+- `credentials` - if `true`, allows user credentials to be sent
+  ('Access-Control-Allow-Credentials'). Defaults to `false`.
+
+### <a name="route.options.description" /> `description`
+
+Default value: none.
+
+Route description used for generating documentation (string).
+
+This setting is not available when setting server route defaults using
+[`server.options.routes`](#server.options.routes).
+
+### <a name="route.options.ext" /> `ext`
+
+Default value: none.
+
+Route-level [request extension points](#request-lifecycle) by setting the option to an object with
+a key for each of the desired extension points (`'onRequest'` is not allowed), and the value is the
+same as the [`server.ext(events)`](#serverextevents) `event` argument.
+
+### <a name="route.options.files" /> `files`
+
+Default value: `{ relativeTo: '.' }`.
+
+Defines the behavior for accessing files:
+
+- `relativeTo` - determines the folder relative paths are resolved against.
+
+### <a name="route.options.handler" /> `handler`
+
+Default value: none.
+
+The route handler function performs the main business logic of the route and sets the respons.
+`handler` can be assigned:
+
+- a [lifecycle method function](#todo). 
+
+- an object with a single property using the name of a handler type registred with the 
+  [`server.handler()`](#serverhandlername-method) method. The matching property value is passed
+  as options to the registered handler generator.
+
+```js
+const handler = function (request, h) {
+
+    return 'success';
+};
+```
+
+Note: handlers using a fat arrow style function cannot be bound to any `bind` property. Instead,
+the bound context is available under [`h.context`](#todo).
+
+### <a name="route.options.id" /> `id`
+
+Default value: none.
+
+An optional unique identifier used to look up the route using [`server.lookup()`](#serverlookupid).
+Cannot be assigned to routes added with an array of methods.
+
+### <a name="route.options.isInternal" /> `isInternal`
+
+Default value: `false`.
+
+If `true`, the route cannot be accessed through the HTTP listener but only through the
+[`server.inject()`](#serverinjectoptions) interface with the `allowInternals` option set to `true`.
+Used for internal routes that should not be accessible to the outside world.
+
+### <a name="route.options.json" /> `json`
+
+Default value: none.
+
+Optional arguments passed to `JSON.stringify()` when converting an object or error response to a
+string payload or escaping it after stringification. Supports the following:
+
+- `replacer` - the replacer function or array. Defaults to no action.
+
+- `space` - number of spaces to indent nested object keys. Defaults to no indentation.
+
+- `suffix` - string suffix added after conversion to JSON string. Defaults to no suffix.
+
+- `escape` - calls [`Hoek.jsonEscape()`](https://github.com/hapijs/hoek/blob/master/API.md#escapejsonstring)
+  after conversion to JSON string. Defaults to `false`.
+
+### <a name="route.options.jsonp" /> `jsonp`
+
+Default value: none.
+
+Enables JSONP support by setting the value to the query parameter name containing the function name
+used to wrap the response payload.
+
+For example, if the value is `'callback'`, a request comes in with `'callback=me'`, and the JSON
+response is `'{ "a":"b" }'`, the payload will be `'me({ "a":"b" });'`. Cannot be used with stream
+responses.
+
+The 'Content-Type' response header is set to `'text/javascript'` and the 'X-Content-Type-Options'
+response header is set to `'nosniff'`, and will override those headers even if explicitly set by
+[`response.type()`](#todo).
+
+### <a name="route.options.log" /> `log`
+
+Default value: `{ collect: false }`.
+
+Request logging options:
+
+- `collect` - if `true`, request-level logs (both internal and application) are collected and
+  accessible via [`request.getLog()`](#requestgetlogtags-internal).
+
+### <a name="route.options.notes" /> `notes`
+
+Default value: none.
+
+Route notes used for generating documentation (string or array of strings).
+
+This setting is not available when setting server route defaults using
+[`server.options.routes`](#server.options.routes).
+
+### <a name="route.options.payload" /> `payload`
+
+Determines how the request payload is processed.
+
+#### <a name="route.options.payload.allow" /> `allow`
+
+Default value: allows parsing of the following mime types:
+- application/json
+- application/*+json
+- application/octet-stream
+- application/x-www-form-urlencoded
+- multipart/form-data
+- text/*
+
+A string or an array of strings with the allowed mime types for the endpoint. Use this settings to
+limit the set of allowed mime types. Note that allowing additional mime types not listed above will
+not enable them to be parsed, and if [`parse`](#route.options.payload.parse) is `true`, the request
+will result in an error response.
+
+#### <a name="route.options.payload.compression" /> `compression`
+
+Default value: none.
+
+An object where each key is a content-encoding name and each value is an object with the desired
+decoder settings. Note that encoder settings are set in [`compression`](#server.options.compression).
+
+#### <a name="route.options.payload.defaultContentType" /> `defaultContentType`
+
+Default value: `'application/json'`.
+
+The default content type if the 'Content-Type' request header is missing.
+
+#### <a name="route.options.payload.failAction" /> `failAction`
+
+Default value: `'error'`.
+
+Determines how to handle payload parsing errors. Allowed values are:
+
+- `'error'` - return a Bad Request (400) error response.
+
+- `'log'` - report the error but continue processing the request.
+
+- `'ignore'` - take no action and continue processing the request.
+
+- a custom error handler function with the signature `async function(request, h, error)` where:
+    - `request` - the [request object](#request-object).
+    - `h` - the [response toolkit](#tookit-interface).
+    - `error` - the error returned during payload parsing.
+
+#### <a name="route.options.payload.maxBytes" /> `maxBytes`
+
+Default value: `1048576` (1MB).
+
+Limits the size of incoming payloads to the specified byte count. Allowing very large payloads may
+cause the server to run out of memory.
+
+#### <a name="route.options.payload.multipart" /> `multipart`
+
+Default value: none.
+
+Overrides payload processing for multipart requests. Value can be one of:
+
+- `false` - disable multipart processing.
+
+- an object with the following required options:
+
+    - `output` - same as the [`output`](#route.options.payload.output) option with an additional
+      value option:
+        - `annotated` - wraps each multipart part in an object with the following keys:
+
+            - `headers` - the part headers.
+            - `filename` - the part file name.
+            - `payload` - the processed part payload.
+
+#### <a name="route.options.payload.output" /> `output`
+
+Default value: `'data'`.
+
+The processed payload format. The value must be one of:
+
+- `'data'` - the incoming payload is read fully into memory. If [`parse`](#route.options.payload.parse)
+  is `true`, the payload is parsed (JSON, form-decoded, multipart) based on the 'Content-Type'
+  header. If [`parse`](#route.options.payload.parse) is `false`, a raw `Buffer` is returned.
+
+- `'stream'` - the incoming payload is made available via a `Stream.Readable` interface. If the
+  payload is 'multipart/form-data' and [`parse`](#route.options.payload.parse) is `true`, field
+  values are presented as text while files are provided as streams. File streams from a
+  'multipart/form-data' upload will also have a `hapi` property containing the `filename` and
+  `headers` properties. Note that payload streams for multipart payloads are a synthetic interface
+  created on top of the entire mutlipart content loaded into memory. To avoid loading large
+  multipart payloads into memory, set [`parse`](#route.options.payload.parse) to `false` and handle
+  the multipart payload in the handler using a streaming parser (e.g. [**pez**](https://github.com/hapijs/pez)).
+
+- `'file'` - the incoming payload is written to temporary file in the directory specified by the
+  [`uploads`](#route.options.payload.uploads) settings. If the payload is 'multipart/form-data' and
+  [`parse`](#route.options.payload.parse) is `true`, field values are presented as text while files
+  are saved to disk. Note that it is the sole responsibility of the application to clean up the
+  files generated by the framework. This can be done by keeping track of which files are used (e.g.
+  using the `request.app` object), and listening to the server `'response'` event to perform
+  cleanup.
+
+#### <a name="route.options.payload.override" /> `override`
+
+Default value: none.
+
+A mime type string overriding the 'Content-Type' header value received.
+
+#### <a name="route.options.payload.parse" /> `parse`
+
+Default value: `true`.
+
+Determines if the incoming payload is processed or presented raw. Available values:
+
+- `true` - if the request 'Content-Type' matches the allowed mime types set by
+  [`allow`](#route.options.payload.allow) (for the whole payload as well as parts), the payload is
+  converted into an object when possible. If the format is unknown, a Bad Request (400) error
+  response is sent. Any known content encoding is decoded.
+
+- `false` - the raw payload is returned unmodified.
+
+- `'gunzip'` - the raw payload is returned unmodified after any known content encoding is decoded.
+
+#### <a name="route.options.payload.timeout" /> `timeout`
+
+Default value: to `10000` (10 seconds).
+
+Payload reception timeout in milliseconds. Sets the maximum time allowed for the client to transmit
+the request payload (body) before giving up and responding with a Request Timeout (408) error
+response.
+
+Set to `false` to disable.
+
+#### <a name="route.options.payload.uploads" /> `uploads`
+
+Default value: `os.tmpdir()`.
+
+The directory used for writing file uploads.
+
+### <a name="route.options.plugins" /> `plugins`
+
+Default value: `{}`.
+
+Plugin-specific configuration. `plugins` is an object where each key is a plugin name and the value
+is the plugin configuration.
+
+### <a name="route.options.pre" /> `pre`
+
+Default value: none.
+
+The `pre` option allows defining methods for performing actions before the handler is called. These
+methods allow breaking the handler logic into smaller, reusable components that can be shared
+ascross routes, as well as provide a cleaner error handling of prerequisite operations (e.g. load
+required reference data from a database).
+
+`pre` is assigned an ordered array of methods which are called serially in order. If the `pre`
+array contains another array of methods as one of its elements, those methods are called in
+parallel. Note that during parallel execution, if any of the methods error, return a
+[takeover](#todo) response, or abort signal, the other parallel methods will continue to execute
+but will be ignored once completed.
+
+`pre` can be assigned a mixed array of:
+
+- an array containing the elements listed below, which are executed in parallel.
+
+- an object with:
+    - `method` - a [lifecycle method function](#todo).
+    - `assign` - key name used to assign the response of the method to in [`request.pre`](#todo)
+      and [`request.preResponses`](#todo).
+    - `failAction` - determines how to handle errors returned by the method. Allowed values are:
+        - `'error'` - sets the error as the handler response and skips to the response validation
+          lifecycle step. This is the default value.
+        - `'log'` - logs the error but continues processing the request. If `assign` is used, the
+          error will be assigned.
+        - `'ignore'` - takes no special action. If `assign` is used, the error will be assigned.
+
+- a method function - same as including an object with a single `method` key.
+
+Note that pre-handler methods do not behave the same way other [lifecycle methods](#todo) do when
+a value is returned. Instead of the return value becoming the new response payload, the value is
+used to assign the corresponding [`request.pre`](#todo) and [`request.preResponses`](#todo)
+properties. Otherwise, the handling of errors, [takeover](#todo) response, or abort signal behave
+the same as any other [lifecycle methods](#todo).
+
+```js
+const Hapi = require('hapi');
+const server = Hapi.server({ port: 80 });
+
+const pre1 = function (request, h) {
+
+    return 'Hello';
+};
+
+const pre2 = function (request, h) {
+
+    return 'World';
+};
+
+const pre3 = function (request, h) {
+
+    return request.pre.m1 + ' ' + request.pre.m2;
+};
+
+server.route({
+    method: 'GET',
+    path: '/',
+    config: {
+        pre: [
+            [
+                // m1 and m2 executed in parallel
+                { method: pre1, assign: 'm1' },
+                { method: pre2, assign: 'm2' }
+            ],
+            { method: pre3, assign: 'm3' },
+        ],
+        handler: function (request, h) {
+
+            return request.pre.m3 + '!\n';
+        }
+    }
+});
+```
+
+### <a name="route.options.response" /> `response`
+
+Processing rules for the outgoing response.
+
+#### <a name="route.options.response.emptyStatusCode" /> `emptyStatusCode`
+
+ Default value: `200`.
+
+The default HTTP status code when the payload is considered empty. Value can be `200` or `204`.
+Note that a `200` status code is converted to a `204` only at the time of response transmission
+(the response status code will remain `200` throughout the request lifecycle unless manually set).
+
+#### <a name="route.options.response.failAction" /> `failAction`
+
+Default value: `'error'`.
+
+Defines what to do when a response fails payload validation. Options are:
+
+- `'error'` - return an Internal Server Error (500) error response.
+
+- `'log'` - log the error but send the response unchanged.
+
+- a custom error handler function with the signature `async function(request, h, err)` where:
+
+    - `request` - the [request object](#request-object).
+    - `h` - the [response toolkit](#response-toolkit).
+    - `err` - the error returned from the validation schema.
+
+#### <a name="route.options.response.modify" /> `modify`
+
+Default value: `false`.
+
+If `true`, applies the validation rule changes to the response payload.
+
+#### <a name="route.options.response.options" /> `options`
+
+Default value: none.
+
+[**joi**](http://github.com/hapijs/joi) options object pass to the validation function. Useful to
+set global options such as `stripUnknown` or `abortEarly` (the complete list is available
+[here](https://github.com/hapijs/joi/blob/master/API.md#validatevalue-schema-options-callback)).
+If a custom validation function is defined via [`schema`](#route.options.response.schema) or
+[`status`](#route.options.response.status) then `options` can an arbitrary object that will be
+passed to this function as the second argument.
+
+#### <a name="route.options.response.ranges" /> `ranges`
+
+Default value: `true`.
+
+If `false`, payload [range](https://tools.ietf.org/html/rfc7233#section-3) support is disabled.
+
+#### <a name="route.options.response.sample" /> `sample`
+
+Default value: `100` (all responses).
+
+The percent of response payloads validated (0 - 100). Set to `0` to disable all validation.
+
+#### <a name="route.options.response.schema" /> `schema`
+
+Default value: `true` (no validation).
+
+The default response payload validation rules (for all non-error responses) expressed as one of:
+
+- `true` - any payload allowed (no validation).
+
+- `false` - no payload allowed.
+
+- a [**joi**](http://github.com/hapijs/joi) validation object. The [`options`](#route.options.response.options)
+  along with the request context (`{ headers, params, query, payload, app, auth }`) are passed to
+  the validation function.
+
+- a validation function using the signature `async function(value, options)` where:
+
+    - `value` - the pending response payload.
+    - `options` - The [`options`](#route.options.response.options) along with the request context
+      (`{ headers, params, query, payload, app, auth }`).
+
+    - if the function returns a value and [`modify`](#route.options.response.modify) is `true`,
+      the value is used as the new response. If the original response is an error, the return
+      value is used to override the original error `output.payload`. If an error is thrown, the
+      error is processed according to [`failAction`](#route.options.response.failAction).
+
+#### <a name="route.options.response.status" /> `status`
+
+Default value: none.
+
+Validation schemas for specific HTTP status codes. Responses (excluding errors) not matching the
+listed status codes are validated using the default [`schema`](#route.options.response.schema).
+
+`status` is set to an object where each key is a 3 digit HTTP status code and the value has the
+same definition as [`schema`](#route.options.response.schema).
+
+### <a name="route.options.security" /> `security`
+
+Default value: `false` (security headers disabled).
+
+Sets common security headers. To enable, set `security` to `true` or to an object with the
+following options:
+
+- `hsts` - controls the 'Strict-Transport-Security' header, where:
+
+    - `true` - the header will be set to `max-age=15768000`. This is the default value.
+    - a number - the maxAge parameter will be set to the provided value.
+
+    - an object with the following fields:
+        - `maxAge` - the max-age portion of the header, as a number. Default is `15768000`.
+        - `includeSubDomains` - a boolean specifying whether to add the `includeSubDomains` flag to
+          the header.
+        - `preload` - a boolean specifying whether to add the `'preload'` flag (used to submit
+          domains inclusion in Chrome's HTTP Strict Transport Security (HSTS) preload list) to the
+          header.
+
+- `xframe` - controls the 'X-Frame-Options' header, where:
+
+    - `true` - the header will be set to `'DENY'`. This is the default value.
+    - `'deny'` - the headers will be set to `'DENY'`.
+    - `'sameorigin'` - the headers will be set to `'SAMEORIGIN'`.
+
+    - an object for specifying the 'allow-from' rule, where:
+        - `rule` - one of:
+            - `'deny'`
+            - `'sameorigin'`
+            - `'allow-from'`
+        - `source` - when `rule` is `'allow-from'` this is used to form the rest of the header,
+          otherwise this field is ignored. If `rule` is `'allow-from'` but `source` is unset, the
+          rule will be automatically changed to `'sameorigin'`.
+
+- `xss` - boolean that controls the 'X-XSS-PROTECTION' header for Internet Explorer. Defaults to
+  `true` which sets the header to equal `'1; mode=block'`.
+    - Note: this setting can create a security vulnerability in versions of Internet Exploere below
+      8, as well as unpatched versions of IE8. See [here](http://hackademix.net/2009/11/21/ies-xss-filter-creates-xss-vulnerabilities/)
+      and [here](https://technet.microsoft.com/library/security/ms10-002) for more information. If
+      you actively support old versions of IE, it may be wise to explicitly set this flag to
+      `false`.
+
+- `noOpen` - boolean controlling the 'X-Download-Options' header for Internet Explorer, preventing
+  downloads from executing in your context. Defaults to `true` setting the header to `'noopen'`.
+
+- `noSniff` - boolean controlling the 'X-Content-Type-Options' header. Defaults to `true` setting
+  the header to its only and default option, `'nosniff'`.
+
+### <a name="route.options.state" /> `state`
+
+Default value: `{ parse: true, failAction: 'error' }`.
+
+HTTP state management (cookies) allows the server to store information on the client which is sent
+back to the server with every request (as defined in [RFC 6265](https://tools.ietf.org/html/rfc6265)).
+`state` supports the following options:
+
+- `parse` - determines if incoming 'Cookie' headers are parsed and stored in the [`request.state`](#todo)
+  object.
+
+- `failAction` - determines how to handle cookie parsing errors. Allowed values are:
+
+    - `'error'` - return a Bad Request (400) error response.
+    - `'log'` - report the error but continue processing the request.
+    - `'ignore'` - take no action.
+
+### <a name="route.options.tags" /> `tags`
+
+Default value: none.
+
+Route tags used for generating documentation (array of strings).
+
+This setting is not available when setting server route defaults using
+[`server.options.routes`](#server.options.routes).
+
+### <a name="route.options.timeout" /> `timeout`
+
+Default value: `{ server: false }`.
+
+Timeouts for processing durations.
+
+### <a name="route.options.timeout.server" /> `server`
+
+Default value: `false`.
+
+Response timeout in milliseconds. Sets the maximum time allowed for the server to respond to an
+incoming request before giving up and responding with a Service Unavailable (503) error response.
+
+### <a name="route.options.timeout.socket" /> `socket`
+
+Default value: none (use node default of 2 minutes).
+
+By default, node sockets automatically timeout after 2 minutes. Use this option to override this
+behavior. Set to `false` to disable socket timeouts.
+
+### <a name="route.options.validate" /> `validate`
+
+Default value: `{ headers: true, params: true, query: true, payload: true, failAction: 'error' }`.
+
+Request input validation rules for various request components.
+
+### <a name="route.options.validate.errorFields" /> `errorFields`
+
+Default value: none.
+
+An optional object with error fields copied into every validation error response.
+
+### <a name="route.options.validate.failAction" /> `failAction`
+
+Default value: `'error'`.
+
+Determines how to handle failed validations, where:
+
+- `'error'` - return a Bad Request (400) error response.
+- `'log'` - log the error but continue processing the request.
+- `'ignore'` - take no action and continue processing the request.
+
+- a custom error handler function with the signature
+  `async function(request, h, source, err)` where:
+    - `request` - the [request object](#request-object).
+    - `h` - the [response toolkit](#response-toolkit).
+    - `source` - the source of the invalid field (`'headers'`, `'params'`, `'query'`, or
+      `'payload'`).
+    - `err` - the validation error object (includes the validation function error under
+      `error.data`).
+
+### <a name="route.options.validate.headers" /> `headers`
+
+Default value: `true` (no validation).
+
+Validation rules for incoming request headers:
+
+- `true` - any headers allowed (no validation performed).
+
+- a [**joi**](http://github.com/hapijs/joi) validation object.
+
+- a validation function using the signature `async function(value, options)` where:
+
+    - `value` - the [`request.headers`](#todo) object containing the request headers.
+    - `options` - [`options`](#route.options.validate.options).
+    - if a value is returned, the value is used as the new [`request.headers`](#todo) value and the
+      original value is stored in [`request.orig.headers`](#todo). Otherwise, the headers are left
+      unchanged. If an error is thrown, the error is handled according to
+      [`failAction`](#route.options.validate.failAction).
+
+Note that all header field names must be in lowercase to match the headers normalized by node.
+
+### <a name="route.options.validate.options" /> `options`
+
+Default value: none.
+
+An options object passed to the [**joi**](http://github.com/hapijs/joi) rules or the custom
+validation methods. Used for setting global options such as `stripUnknown` or `abortEarly` (the
+complete list is available [here](https://github.com/hapijs/joi/blob/master/API.md#validatevalue-schema-options-callback)).
+
+If a custom validation function (see `headers`, `params`, `query`, or `payload` above) is defined
+then `options` can an arbitrary object that will be passed to this function as the second
+parameter.
+
+The values of the other inputs (i.e. `headers`, `query`, `params`, `payload`, `app`, and `auth`)
+are added to the `options` object under the validation `context` (accessible in rules as
+`Joi.ref('$query.key')`).
+
+Note that validation is performed in order (i.e. headers, params, query, and payload) and if type
+casting is used (e.g. converting a string to a number), the value of inputs not yet validated will
+reflect the raw, unvalidated and unmodified values.
+
+If the validation rules for `headers`, `params`, `query`, and `payload` are defined at both the
+server [`routes`](#server.options.routes) level and at the route level, the individual route
+settings override the routes defaults (the rules are not merged).
+
+### <a name="route.options.validate.params" /> `params`
+
+Default value: `true` (no validation).
+
+Validation rules for incoming request path parameters, after matching the path against the route,
+extracting any parameters, and storing them in [`request.params`](#todo), where:
+
+- `true` - any path parameter value allowed (no validation performed).
+
+- a [**joi**](http://github.com/hapijs/joi) validation object.
+
+- a validation function using the signature `async function(value, options)` where:
+
+    - `value` - the [`request.params`](#todo) object containing the request path parameters.
+    - `options` - [`options`](#route.options.validate.options).
+    - if a value is returned, the value is used as the new [`request.params`](#todo) value and the
+      original value is stored in [`request.orig.params`](#todo). Otherwise, the path parameters
+      are left unchanged. If an error is thrown, the error is handled according to
+      [`failAction`](#route.options.validate.failAction).
+
+Note that failing to match the validation rules to the route path parameters definition will cause
+all requests to fail.
+
+### <a name="route.options.validate.payload" /> `payload`
+
+Default value: `true` (no validation).
+
+Validation rules for incoming request payload (request body), where:
+
+- `true` - any payload allowed (no validation performed).
+- `false` - no payload allowed.
+
+- a [**joi**](http://github.com/hapijs/joi) validation object.
+    - Note that empty payloads are represented by a `null` value. If a validation schema is
+      provided and empty payload are allowed, the schema must be explicitly defined by setting the
+      rule to a **joi** schema with `null` allowed (e.g.
+      `Joi.object({ /* keys here */ }).allow(null)`).
+
+- a validation function using the signature `async function(value, options)` where:
+
+    - `value` - the [`request.query`](#todo) object containing the request query parameters.
+    - `options` - [`options`](#route.options.validate.options).
+    - if a value is returned, the value is used as the new [`request.payload`](#todo) value and the
+      original value is stored in [`request.orig.payload`](#todo). Otherwise, the payload is left
+      unchanged. If an error is thrown, the error is handled according to
+      [`failAction`](#route.options.validate.failAction).
+
+Note that validating large payloads and modifying them will cause memory duplication of the payload
+(since the original is kept), as well as the significant performance cost of validating large
+amounts of data.
+
+### <a name="route.options.validate.query" /> `query`
+
+Default value: `true` (no validation).
+
+Validation rules for incoming request URI query component (the key-value part of the URI between
+'?' and '#'). The query is parsed into its individual key-value pairs, decoded, and stored in
+[`request.query`](#todo) prior to validation. Where:
+
+- `true` - any query parameter value allowed (no validation performed).
+- `false` - no query parameter value allowed.
+
+- a [**joi**](http://github.com/hapijs/joi) validation object.
+
+- a validation function using the signature `async function(value, options)` where:
+
+    - `value` - the [`request.query`](#todo) object containing the request query parameters.
+    - `options` - [`options`](#route.options.validate.options).
+    - if a value is returned, the value is used as the new [`request.query`](#todo) value and the
+      original value is stored in [`request.orig.query`](#todo). Otherwise, the query parameters
+      are left unchanged. If an error is thrown, the error is handled according to
+      [`failAction`](#route.options.validate.failAction).
+
+Note that changes to the query parameters will not be reflected in [`request.url`](#todo).
+
 ## Plugins
 
 Plugins provide a way to organize the application code by splitting the server logic into smaller
 components. Each plugin can manipulate the server and its connections through the standard server
 interface, but with the added ability to sandbox certain properties.
 
-A plugin is a function with the signature `function(server, options, next)` where:
+A plugin is a function with the signature `function(server, options)` where:
 - `server` - the server object the plugin is being registered to.
 - `options` - optional options passed to the plugin during registration.
 - `next` - a callback method the function must call to return control back to the framework to
@@ -2260,14 +3293,14 @@ The plugin function must include an `attributes` function property with the foll
   Defaults to `undefined` (registration will be based on the `server.register()` option `once`).
 
 ```js
-const register = function (server, options, next) {
+const register = function (server, options) {
 
     server.route({
         method: 'GET',
         path: '/test',
-        handler: function (request, reply) {
+        handler: function (request, h) {
 
-            return reply('ok');
+            return 'ok';
         }
     });
 
@@ -2289,1065 +3322,142 @@ register.attributes = {
 };
 ```
 
-## Requests
+## Request lifecycle
 
-Incoming requests are handled by the server via routes. Each route describes an HTTP endpoint with
-a path, method, and other properties. The route logic is divided between static configuration,
-prerequisite functions and a route handler function. Routes are added via the
-[`server.route()`](#serverrouteoptions) method.
+Each incoming request passes through the request lifecycle. The specific steps vary based on the
+server and route configurations, but the order in which the applicable steps are executed is always
+the same. The following is the complete list of steps a request can go through:
 
-### Request lifecycle
-
-Each incoming request passes through a pre-defined list of steps, along with optional
-[extensions](#serverextevent-method-options):
-
-- **`'onRequest'`** extension point
-    - always called
-    - the [request object](#request-object) passed to the extension functions is decorated with the
-      [`request.setUrl()`](#requestseturlurl-stripTrailingSlash) and [`request.setMethod()`](#requestsetmethodmethod)
-      methods. Calls to these methods will impact how the request is routed and can be used for
-      rewrite rules.
-    - `request.route` is not yet populated at this point.
+- _**onRequest**_
+    - always called when `onRequest` extensions exist.
+    - the request path and method can be modified via the [`request.setUrl()`](#requestseturlurl-stripTrailingSlash)
+      and [`request.setMethod()`](#requestsetmethodmethod) methods. Changes to the request path or
+      method will impact how the request is routed and can be used for rewrite rules.
+    - [`request.route`](#todo) is unassigned.
     - JSONP configuration is ignored for any response returned from the extension point since no
       route is matched yet and the JSONP configuration is unavailable.
-- Lookup route using request path
-    - if no route is found or if the path violates the HTTP specification, skips to the
-      **`'onPreResponse'`** extension point.
-- Process query extensions (e.g. JSONP)
-- Parse cookies
-- **`'onPreAuth'`** extension point
-- Authenticate request
-- Read and parse payload
-- Authenticate request payload
-- **`'onPostAuth'`** extension point
-- Validate headers
-- Validate path parameters
-- Validate query
-- Validate payload
-- **`'onPreHandler'`** extension point
-- [Route prerequisites](#route-prerequisites)
-- Route handler
-- **`'onPostHandler'`** extension point
+    - skips to _**onPreResponse**_ on first error or first takeover response.
+    - skips to _**Finalize request**_ on abort.
+
+- _**Route lookup**_
+    - lookup based on `request.path` and `request.method`.
+    - skips to _**onPreResponse**_ if no route is found or if the path violates the HTTP
+      specification.
+
+- _**JSONP processing**_
+    - based on the route [`jsonp`](#route.options.jsonp) option.
+    - parses JSONP parameter from [`request.query`](#todo).
+    - skips to **_Response validation**_ on error.
+
+- _**Cookies processing**_
+    - based on the route [`state`](#route.options.state) option.
+    - error handling based on [`failAction`](#route.options.state.failAction).
+    - skips to **_Response validation**_ on error.
+
+- _**onPreAuth**_
+    - called regardless if authentication is performed.
+    - skips to **_Response validation**_ on first error or first takeover response.
+    - skips to _**Finalize request**_ on abort.
+
+- _**Authentication**_
+    - based on the route [`auth`](#route.options.auth) option.
+    - skips to **_Response validation**_ on error or takeover response.
+    - skips to _**Finalize request**_ on abort.
+
+- _**Payload processing**_
+    - based on the route [`state`](#route.options.payload) option.
+    - error handling based on [`failAction`](#route.options.payload.failAction).
+    - skips to **_Response validation**_ on error.
+
+- _**Payload authentication**_
+    - based on the route [`auth`](#route.options.auth) option.
+    - skips to **_Response validation**_ on first error or first takeover response.
+    - skips to _**Finalize request**_ on abort.
+
+- _**onPostAuth**_
+    - called regardless if authentication is performed.
+    - skips to **_Response validation**_ on first error.
+    - skips to _**Finalize request**_ on abort.
+
+- _**Headers validation**_
+    - based on the route [`validate.headers`](#route.options.validate.headers) option.
+    - error handling based on [`failAction`](#route.options.validate.failAction).
+    - skips to **_Response validation**_ on error.
+
+- _**Path parameters validation**_
+    - based on the route [`validate.params`](#route.options.validate.params) option.
+    - error handling based on [`failAction`](#route.options.validate.failAction).
+    - skips to **_Response validation**_ on error.
+
+- _**JSONP cleanup**_
+    - based on the route [`jsonp`](#route.options.jsonp) option.
+    - remove the JSONP parameter from [`request.query`](#todo).
+
+- _**Query validation**_
+    - based on the route [`validate.query`](#route.options.validate.query) option.
+    - error handling based on [`failAction`](#route.options.validate.failAction).
+    - skips to **_Response validation**_ on error.
+
+- _**Payload validation**_
+    - based on the route [`validate.payload`](#route.options.validate.payload) option.
+    - error handling based on [`failAction`](#route.options.validate.failAction).
+    - skips to **_Response validation**_ on error.
+
+- _**onPreHandler**_
+    - skips to **_Response validation**_ on first error or first takeover response.
+    - skips to _**Finalize request**_ on abort.
+
+- _**Pre-handler methods**_
+    - based on the route [`pre`](#route.options.pre) option.
+    - error handling based on each pre-handler method's `failAction` setting.
+    - skips to **_Response validation**_ on first error or first takeover response.
+    - skips to _**Finalize request**_ on abort.
+
+- _**Route handler**_
+    - executes the route [`handler`](#todo).
+    - skips to **_Response validation**_ on error or takeover response.
+    - skips to _**Finalize request**_ on abort.
+
+- _**onPostHandler**_
     - The response object contained in `request.response` may be modified (but not assigned a new
       value). To return a different response type (for example, replace an error with an HTML
       response), return a new response via `reply(response)`.
-- Validate response payload
-- **`'onPreResponse'`** extension point
-    - always called (except when [`reply.close()`](#replycloseoptions) is called or the client
-      terminates the connection prematurely).
-    - The response contained in `request.response` may be modified (but not assigned a new value).
-      To return a different response type (for example, replace an error with an HTML response),
-      return a new response via `reply(response)`. Note that any errors generated after
-      `reply(response)` is called will not be passed back to the `'onPreResponse'` extension method
-      to prevent an infinite loop.
-- Send response (may emit `'request-error'` event)
-- Emits `'response'` event
-- Wait for tails
-- Emits `'tail'` event
-
-### Route configuration
-
-The route configuration object supports the following options:
-- `path` - (required) the absolute path used to match incoming requests (must begin with '/').
-  Incoming requests are compared to the configured paths based on the connection
-  [`router`](#connection.config.router) configuration option. The path can include named parameters
-  enclosed in `{}` which  will be matched against literal values in the request as described in
-  [Path parameters](#path-parameters).
-
-- `method` - (required) the HTTP method. Typically one of 'GET', 'POST', 'PUT', 'PATCH', 'DELETE',
-  or 'OPTIONS'. Any HTTP method is allowed, except for 'HEAD'. Use `'*'` to match against any HTTP
-  method (only when an exact match was not found, and any match with a specific method will be
-  given a higher priority over a wildcard match). Can be assigned an array of methods which has the
-  same result as adding the same route with different methods manually.
-
-- `vhost` - an optional domain string or an array of domain strings for limiting the route to only
-  requests with a matching host header field. Matching is done against the hostname part of the
-  header only (excluding the port). Defaults to all hosts.
-
-- `handler` - (required) the function called to generate the response after successful
-  authentication and validation. The handler function is described in
-  [Route handler](#route-handler). If set to a string, the value is parsed the same way a
-  prerequisite server method string shortcut is processed. Alternatively, `handler` can be assigned
-  an object with a single key using the name of a registered handler type and value with the
-  options passed to the registered handler.
-
-- `config` - additional [route options](#route-options). The `config` value can be an object
-  or a function that returns an object using the signature `function(server)` where `server` is
-  the server the route is being added to and `this` is bound to the current realm's `bind` option.
-
-Note that the `options` object is deeply cloned (with the exception of `bind` which is shallowly
-copied) and cannot contain any values that are unsafe to perform deep copy on.
-
-```js
-const Hapi = require('hapi');
-const server = new Hapi.Server();
-server.connection({ port: 80 });
-
-// Handler in top level
-
-const status = function (request, reply) {
-
-    return reply('ok');
-};
-
-server.route({ method: 'GET', path: '/status', handler: status });
-
-// Handler in config
-
-const user = {
-    cache: { expiresIn: 5000 },
-    handler: function (request, reply) {
-
-        return reply({ name: 'John' });
-    }
-};
-
-server.route({ method: 'GET', path: '/user', config: user });
-```
-
-#### Route options
-
-Each route can be customized to change the default behavior of the request lifecycle using the
-following options:
-- `app` - application-specific request state. Should not be used by [plugins](#plugins) which
-  should use `plugins[name]` instead.
-
-- <a name="route.config.auth"></a>`auth` - authentication configuration. Value can be:
-    - `false` to disable authentication if a default strategy is set.
-    - a string with the name of an authentication strategy registered with
-      [`server.auth.strategy()`](#serverauthstrategyname-scheme-mode-options).
-    - an object with:
-        - `mode` - the authentication mode. Defaults to `'required'` if a server authentication
-          strategy is configured, otherwise defaults to no authentication. Available values:
-            - `'required'` - authentication is required.
-            - `'optional'` - authentication is optional (must be valid if present).
-            - `'try'` - same as `'optional'` but allows for invalid authentication.
-        - `strategies` - a string array of strategy names in order they should be attempted. If
-          only one strategy is used, `strategy` can be used instead with the single string
-          value. Defaults to the default authentication strategy which is available only when a
-          single strategy is configured.
-        - `payload` - if set, the payload (in requests other than 'GET' and 'HEAD') is
-          authenticated after it is processed. Requires a strategy with payload authentication
-          support (e.g. [Hawk](#https://github.com/hueniverse/hawk)). Cannot be set to a value
-          other than `'required'` when the scheme sets the `options.payload` to `true`.
-          Available values:
-            - `false` - no payload authentication. This is the default value.
-            - `'required'` - payload authentication required. This is the default value when
-              the scheme sets `options.payload` to `true`.
-            - `'optional'` - payload authentication performed only when the client includes
-              payload authentication information (e.g. `hash` attribute in Hawk).
-        - `access` - an object or array of objects specifying the route access rules. Each
-          rule is evaluated against an incoming request and access is granted if at least one
-          rule matches. Each rule object must include at least one of:
-            - `scope` - the application scope required to access the route. Value can be a scope
-              string or an array of scope strings. The authenticated credentials object `scope`
-              property must contain at least one of the scopes defined to access the route. If a
-              scope string begins with a `+` character, that scope is required. If a scope string
-              begins with a `!` character, that scope is forbidden. For example, the scope
-              `['!a', '+b', 'c', 'd']` means the incoming request credentials' scope must not include
-              'a', must include 'b', and must include one of 'c' or 'd'. You may also access
-              properties on the request object (`query` and `params`) to populate a dynamic scope
-              by using `{}` characters around the property name, such as `'user-{params.id}'`.
-              Defaults to `false` (no scope requirements).
-            - `entity` - the required authenticated entity type. If set, must match the `entity`
-              value of the authentication credentials. Available values:
-                - `any` - the authentication can be on behalf of a user or application. This is the
-                  default value.
-                - `user` - the authentication must be on behalf of a user which is identified by the
-                  presence of a `user` attribute in the `credentials` object returned by the
-                  authentication strategy.
-                - `app` - the authentication must be on behalf of an application which is identified
-                  by the lack of presence of a `user` attribute in the `credentials` object returned
-                  by the authentication strategy.
-
-- `bind` - an object passed back to the provided `handler` (via `this`) when called.
-  Ignored if the method is an arrow function.
-
-- `cache` - if the route method is 'GET', the route can be configured to include caching
-  directives in the response.
-  The default `Cache-Control: no-cache` header can be disabled by setting `cache` to `false`.
-  Caching can be customized using an object with the following options:
-    - `privacy` - determines the privacy flag included in client-side caching using the
-      'Cache-Control' header. Values are:
-        - `'default'` - no privacy flag. This is the default setting.
-        - `'public'` - mark the response as suitable for public caching.
-        - `'private'` - mark the response as suitable only for private caching.
-    - `expiresIn` - relative expiration expressed in the number of milliseconds since the
-      item was saved in the cache. Cannot be used together with `expiresAt`.
-    - `expiresAt` - time of day expressed in 24h notation using the 'HH:MM' format, at which
-      point all cache records for the route expire. Cannot be used together with `expiresIn`.
-    - `statuses` - an array of HTTP response status codes (e.g. `200`) which are allowed to include
-      a valid caching directive. Defaults to `[200]`.
-    - `otherwise` - a string with the value of the 'Cache-Control' header when caching is disabled.
-      Defaults to `'no-cache'`.
-
-- `compression` - an object where each key is a content-encoding name and each value is an
-  object with the desired encoder settings. Note that decoder settings are set in `payload.compression`.
-
-- `cors` - the [Cross-Origin Resource Sharing](http://www.w3.org/TR/cors/) protocol allows
-  browsers to make cross-origin API calls. CORS is required by web applications running
-  inside a browser which are loaded from a different domain than the API server. CORS
-  headers are disabled by default (`false`). To enable, set `cors` to `true`, or to an object
-  with the following options:
-    - `origin` - a strings array of allowed origin servers ('Access-Control-Allow-Origin').
-      The array can contain any combination of fully qualified origins along with origin
-      strings containing a wildcard `'*'` character, or a single `'*'` origin string. Defaults
-      to any origin `['*']`.
-    - `maxAge` - number of seconds the browser should cache the CORS response
-      ('Access-Control-Max-Age'). The greater the value, the longer it will take before the
-      browser checks for changes in policy. Defaults to `86400` (one day).
-    - `headers` - a strings array of allowed headers ('Access-Control-Allow-Headers').
-      Defaults to `['Accept', 'Authorization', 'Content-Type', 'If-None-Match']`.
-    - `additionalHeaders` - a strings array of additional headers to `headers`. Use this to
-      keep the default headers in place.
-    - `exposedHeaders` - a strings array of exposed headers
-      ('Access-Control-Expose-Headers'). Defaults to
-      `['WWW-Authenticate', 'Server-Authorization']`.
-    - `additionalExposedHeaders` - a strings array of additional headers to
-      `exposedHeaders`. Use this to keep the default headers in place.
-    - `credentials` - if `true`, allows user credentials to be sent
-      ('Access-Control-Allow-Credentials'). Defaults to `false`.
-
-- `ext` - defined a route-level [request extension points](#request-lifecycle) by setting
-  the option to an object with a key for each of the desired extension points (`'onRequest'`
-  is not allowed), and the value is the same as the [`server.ext(events)`](#serverextevents)
-  `event` argument.
-
-- <a name="route.config.files"></a>`files` - defines the behavior for accessing files:
-    - `relativeTo` - determines the folder relative paths are resolved against.
-
-- `handler` - an alternative location for the route `handler` option.
-
-- `id` - an optional unique identifier used to look up the route using
-  [`server.lookup()`](#serverlookupid). Cannot be assigned to routes with an array of methods.
-
-- `isInternal` - if `true`, the route cannot be accessed through the HTTP connection but only
-  through the `server.inject()` interface with the `allowInternals` option set to `true`. Used
-  for internal routes that should not be accessible to the outside world. Defaults to `false`.
-
-- `json` - optional arguments passed to `JSON.stringify()` when converting an object or
-  error response to a string payload or escaping it after stringification. Supports the following:
-    - `replacer` - the replacer function or array. Defaults to no action.
-    - `space` - number of spaces to indent nested object keys. Defaults to no indentation.
-    - `suffix` - string suffix added after conversion to JSON string. Defaults to no suffix.
-    - `escape` - calls [`Hoek.jsonEscape()`](https://github.com/hapijs/hoek/blob/master/API.md#escapejsonstring) after conversion to JSON string. Defaults to `false`.
-
-- `jsonp` - enables JSONP support by setting the value to the query parameter name containing
-  the function name used to wrap the response payload. For example, if the value is
-  `'callback'`, a request comes in with `'callback=me'`, and the JSON response is
-  `'{ "a":"b" }'`, the payload will be `'me({ "a":"b" });'`. Does not work with stream
-  responses. Headers `content-type` and `x-content-type-options` are set to
-  `text/javascript` and `nosniff` respectively, and will override those
-  headers even if explicitly set by `response.type()`
-
-- `log` - if `true`, request level logging is enabled (accessible via [`request.getLog()`](#requestgetlogtags-internal)).
-
-- `payload` - determines how the request payload is processed:
-    - `output` - the type of payload representation requested. The value must be one of:
-        - `'data'` - the incoming payload is read fully into memory. If `parse` is `true`, the
-          payload is parsed (JSON, form-decoded, multipart) based on the 'Content-Type' header.
-          If `parse` is false, the raw `Buffer` is returned. This is the default value except
-          when a proxy handler is used.
-        - `'stream'` - the incoming payload is made available via a `Stream.Readable`
-          interface. If the payload is 'multipart/form-data' and `parse` is `true`, fields
-          values are presented as text while files are provided as streams. File streams from a
-          'multipart/form-data' upload will also have a property `hapi` containing `filename`
-          and `headers` properties.
-        - `'file'` - the incoming payload is written to temporary file in the directory
-          specified by the server's `payload.uploads` settings. If the payload is
-          'multipart/form-data' and `parse` is `true`, fields values are presented as text
-          while files are saved. Note that it is the sole responsibility of the application to
-          clean up the files generated by the framework. This can be done by keeping track
-          of which files are used (e.g. using the `request.app` object), and listening to
-          the server `'response'` event to perform any needed cleanup.
-    - `parse` - can be `true`, `false`, or `gunzip`; determines if the incoming payload is
-      processed or presented raw. `true` and `gunzip` includes gunzipping when the appropriate
-      'Content-Encoding' is specified on the received request. If parsing is enabled and the
-      'Content-Type' is known (for the whole payload as well as parts), the payload is
-      converted into an object when possible. If the format is unknown, a Bad Request (400)
-      error response is sent. Defaults to `true`, except when a proxy handler is used. The
-      supported mime types are:
-        - application/json
-        - application/x-www-form-urlencoded
-        - application/octet-stream
-        - text/*
-        - multipart/form-data
-    - `multipart` - overrides payload processing for multipart requests. Value can be one of:
-        - `false` - disables multipart processing.
-        - object with the following required options:
-            - `output` - same as the `payload.output` option with an additional value option:
-                - `annotated` - wraps each multipart part in an object with the following keys:
-                    - `headers` - the part headers.
-                    - `filename` - the part file name.
-                    - `payload` - the processed part payload.
-    - `allow` - a string or an array of strings with the allowed mime types for the endpoint.
-      Defaults to any of the supported mime types listed above. Note that allowing other mime
-      types not listed will not enable them to be parsed, and that if parsing mode is
-      `'parse'`, the request will result in an error response.
-    - `override` - a mime type string overriding the 'Content-Type' header value received.
-      Defaults to no override.
-    - `maxBytes` - limits the size of incoming payloads to the specified byte count.
-      Allowing very large payloads may cause the server to run out of memory. Defaults to
-      `1048576` (1MB).
-    - `timeout` - payload reception timeout in milliseconds. Sets the maximum time allowed for the
-      client to transmit the request payload (body) before giving up and responding with a Request
-      Timeout (408) error response. Set to `false` to disable. Defaults to `10000` (10 seconds).
-    - `uploads` - the directory used for writing file uploads. Defaults to `os.tmpdir()`.
-    - `failAction` - determines how to handle payload parsing errors. Allowed values are:
-        - `'error'` - return a Bad Request (400) error response. This is the default value.
-        - `'log'` - report the error but continue processing the request.
-        - `'ignore'` - take no action and continue processing the request.
-        - a custom error handler function with the signature
-          `function(request, reply, error)` where:
-            - `request` - the [request object](#request-object).
-            - `reply` - the continuation [reply interface](#reply-interface).
-            - `error` - the error returned during payload parsing.
-    - `defaultContentType` - the default 'Content-Type' HTTP header value is not present.
-      Defaults to `'application/json'`.
-    - `compression` - an object where each key is a content-encoding name and each value is an
-      object with the desired decoder settings. Note that encoder settings are set in the root
-      option `compression`.
-
-- `plugins` - plugin-specific configuration. `plugins` is an object where each key is a plugin
-  name and the value is the plugin configuration.
-
-- `pre` - an array with [route prerequisites](#route-prerequisites) methods which are executed
-  in serial or in parallel before the handler is called.
-
-- `response` - processing rules for the outgoing response:
-    - `emptyStatusCode` - the default HTTP status code when the payload is empty. Value can
-      be `200` or `204`. Note that a `200` status code is converted to a `204` only at the time
-      or response transmission (the response status code will remain `200` throughout the
-      request lifecycle unless manually set). Defaults to `200`.
-    - `failAction` - defines what to do when a response fails payload validation. Options are:
-        - `error` - return an Internal Server Error (500) error response. This is the default
-          value.
-        - `log` - log the error but send the response.
-        - a custom error handler function with the signature
-          `function(request, reply, source, error)` where:
-            - `request` - the [request object](#request-object).
-            - `reply` - the continuation [reply interface](#reply-interface).
-            - `source` - a string representing the validation failure source, e.g. 'query', 'payload', 'params', 'headers'.
-            - `error` - the error returned from the validation schema.
-    - `modify` - if `true`, applies the validation rule changes to the response payload. Defaults to
-      `false`.
-    - `options` - options to pass to [Joi](http://github.com/hapijs/joi). Useful to set
-      global options such as `stripUnknown` or `abortEarly` (the complete list is available
-      [here](https://github.com/hapijs/joi/blob/master/API.md#validatevalue-schema-options-callback)).
-      If a custom validation function (see `schema` or `status` below) is defined
-      then `options` can an arbitrary object that will be passed to this function
-      as the second parameter.
-      Defaults to no options.
-    - `ranges` - if `false`, payload range support is disabled. Defaults to `true`.
-    - `sample` - the percent of response payloads validated (0 - 100). Set to `0` to disable all
-      validation. Defaults to `100` (all response payloads).
-    - `schema` - the default response payload validation rules (for all non-error responses)
-      expressed as one of:
-        - `true` - any payload allowed (no validation performed). This is the default.
-        - `false` - no payload allowed.
-        - a [Joi](http://github.com/hapijs/joi) validation object. This will receive the request's
-          headers, params, query, payload, app, and auth as context.
-        - a validation function using the signature `function(value, options, next)` where:
-            - `value` - the value of the response passed to `reply(value)` in the handler.
-            - `options` - the server validation options, merged with an object containing the request's
-              headers, params, payload, and auth credentials object and isAuthenticated flag.
-            - `next([err, [value]])` - the callback function called when validation is completed.  `value` will be used as the response value when `err` is falsy, when `value` is not `undefined`, and when `route.settings.response.modify` is `true`.   If the response is already a `Boom` error it will be set as its `message` value.
-    - `status` - HTTP status-code-specific payload validation rules. The `status` key is set to an
-      object where each key is a 3 digit HTTP status code and the value has the same
-      definition as `schema`. If a response status code is not present in the `status` object,
-      the `schema` definition is used, except for errors which are not validated by default.
-
-- `security` - sets common security headers (disabled by default). To enable set `security` to
-  `true` or to an object with the following options:
-    - `hsts` - controls the 'Strict-Transport-Security' header. If set to `true` the header
-      will be set to `max-age=15768000`, if specified as a number the maxAge parameter will
-      be set to that number. Defaults to `true`. You may also specify an object with the
-      following fields:
-        - `maxAge` - the max-age portion of the header, as a number. Default is `15768000`.
-        - `includeSubDomains` - a boolean specifying whether to add the `includeSubDomains`
-          flag to the header.
-        - `preload` - a boolean specifying whether to add the 'preload' flag (used to submit
-          domains inclusion in Chrome's HTTP Strict Transport Security (HSTS) preload list)
-          to the header.
-    - `xframe` - controls the 'X-Frame-Options' header. When set to `true` the header will
-      be set to `DENY`, you may also specify a string value of 'deny' or 'sameorigin'. Defaults to `true`. To
-      use the 'allow-from' rule, you must set this to an object with the following fields:
-        - `rule` - either 'deny', 'sameorigin', or 'allow-from'
-        - `source` - when `rule` is 'allow-from' this is used to form the rest of the
-          header, otherwise this field is ignored. If `rule` is 'allow-from' but `source`
-          is unset, the rule will be automatically changed to 'sameorigin'.
-    - `xss` - boolean that controls the 'X-XSS-PROTECTION' header for IE. Defaults to
-      `true` which sets the header to equal '1; mode=block'. NOTE: This setting can create
-      a security vulnerability in versions of IE below 8, as well as unpatched versions of
-      IE8. See [here](http://hackademix.net/2009/11/21/ies-xss-filter-creates-xss-vulnerabilities/)
-      and [here](https://technet.microsoft.com/library/security/ms10-002) for more
-      information. If you actively support old versions of IE, it may be wise to explicitly
-      set this flag to `false`.
-    - `noOpen` - boolean controlling the 'X-Download-Options' header for IE, preventing
-      downloads from executing in your context. Defaults to `true` setting the header to
-      'noopen'.
-    - `noSniff` - boolean controlling the 'X-Content-Type-Options' header. Defaults to
-      `true` setting the header to its only and default option, 'nosniff'.
-
-- <a name="route.config.state"></a>`state` - HTTP state management (cookies) allows
-  the server to store information on the client which is sent back to the server with every
-  request (as defined in [RFC 6265](https://tools.ietf.org/html/rfc6265)). `state` supports
-  the following options:
-    - `parse` - determines if incoming 'Cookie' headers are parsed and stored in the
-      `request.state` object. Defaults to `true`.
-    - `failAction` - determines how to handle cookie parsing errors. Allowed values are:
-        - `'error'` - return a Bad Request (400) error response. This is the default value.
-        - `'log'` - report the error but continue processing the request.
-        - `'ignore'` - take no action.
-
-- `validate` - request input validation rules for various request components. When using a
-  [Joi](http://github.com/hapijs/joi) validation object, the values of the other inputs (i.e.
-  `headers`, `query`, `params`, `payload`, `app`, and `auth`) are made available under the validation
-  context (accessible in rules as `Joi.ref('$query.key')`). Note that validation is performed in
-  order (i.e. headers, params, query, payload) and if type casting is used (converting a string to
-  number), the value of inputs not yet validated will reflect the raw, unvalidated and unmodified
-  values. If the validation rules for `headers`, `params`, `query`, and `payload` are defined
-  at both the routes defaults level and an individual route, the individual route settings override
-  the routes defaults (the rules are not merged). The `validate` object supports:
-
-    - `headers` - validation rules for incoming request headers (note that all header field names
-      must be in lowercase to match the headers normalized by node). Values allowed:
-        - `true` - any headers allowed (no validation performed).  This is the default.
-        - `false` - no headers allowed (this will cause all valid HTTP requests to fail).
-        - a [Joi](http://github.com/hapijs/joi) validation object.
-        - a validation function using the signature `function(value, options, next)` where:
-            - `value` - the object containing the request headers.
-            - `options` - the server validation options.
-            - `next([err, [value]])` - the callback function called when validation is completed.  `value` will be used as the `headers` value when `err` is falsy.  If `next` is called with `undefined` or no arguments then the original value of `value` will be used.
-
-    - `params` - validation rules for incoming request path parameters, after matching the path
-      against the route and extracting any parameters then stored in `request.params`. Values
-      allowed:
-        - `true` - any path parameters allowed (no validation performed).  This is the default.
-        - `false` - no path variables allowed.
-        - a [Joi](http://github.com/hapijs/joi) validation object.
-        - a validation function using the signature `function(value, options, next)` where:
-            - `value` - the object containing the path parameters.
-            - `options` - the server validation options.
-            - `next([err, [value]])` - the callback function called when validation is completed.  `value` will be used as the `params` value when `err` is falsy.  If `next` is called with `undefined` or no arguments then the original value of `value` will be used.
-
-    - `query` - validation rules for an incoming request URI query component (the key-value
-      part of the URI between '?' and '#'). The query is parsed into its individual key-value
-      pairs and stored in `request.query` prior to validation. Values allowed:
-        - `true` - any query parameters allowed (no validation performed). This is the default.
-        - `false` - no query parameters allowed.
-        - a [Joi](http://github.com/hapijs/joi) validation object.
-        - a validation function using the signature `function(value, options, next)` where:
-            - `value` - the object containing the query parameters.
-            - `options` - the server validation options.
-            - `next([err, [value]])` - the callback function called when validation is completed.  `value` will be used as the `query` value when `err` is falsy.  If `next` is called with `undefined` or no arguments then the original value of `value` will be used.
-
-    - `payload` - validation rules for an incoming request payload (request body). Values
-      allowed:
-        - `true` - any payload allowed (no validation performed). This is the default.
-        - `false` - no payload allowed.
-        - a [Joi](http://github.com/hapijs/joi) validation object. Note that empty payloads
-          are represented by a `null` value. If a validation schema is provided and empty
-          payload are supported, it must be explicitly defined by setting the `payload` value
-          to a **joi** schema with `null` allowed (e.g. `Joi.object({ /* keys here */ }).allow(null)`).
-        - a validation function using the signature `function(value, options, next)` where:
-            - `value` - the object containing the payload object.
-            - `options` - the server validation options.
-            - `next([err, [value]])` - the callback function called when validation is completed.  `value` will be used as the `payload` value when `err` is falsy.  If `next` is called with `undefined` or no arguments then the original value of `value` will be used.
-
-    - `errorFields` - an optional object with error fields copied into every validation error
-      response.
-
-    - `failAction` - determines how to handle invalid requests. Allowed values are:
-        - `'error'` - return a Bad Request (400) error response. This is the default value.
-        - `'log'` - log the error but continue processing the request.
-        - `'ignore'` - take no action.
-        - a custom error handler function with the signature
-          `function(request, reply, source, error)` where:
-            - `request` - the [request object](#request-object).
-            - `reply` - the continuation [reply interface](#reply-interface).
-            - `source` - the source of the invalid field (e.g. `'headers'`, `'params'`, `'query'`,
-              `'payload'`).
-            - `error` - the error object prepared for the client response (including the
-              validation function error under `error.data`).
-
-    - `options` - options to pass to [Joi](http://github.com/hapijs/joi). Useful to set
-      global options such as `stripUnknown` or `abortEarly` (the complete list is available
-      [here](https://github.com/hapijs/joi/blob/master/API.md#validatevalue-schema-options-callback)).
-      If a custom validation function (see `headers`, `params`, `query`, or `payload`
-      above) is defined then `options` can an arbitrary object that will be passed
-      to this function as the second parameter.
-      Defaults to no options.
-
-- `timeout` - define timeouts for processing durations:
-    - `server` - response timeout in milliseconds. Sets the maximum time allowed for the
-      server to respond to an incoming client request before giving up and responding with
-      a Service Unavailable (503) error response. Disabled by default (`false`).
-    - `socket` - by default, node sockets automatically timeout after 2 minutes. Use this
-      option to override this behavior. Defaults to `undefined` which leaves the node
-      default unchanged. Set to `false` to disable socket timeouts.
-
-The following documentation options are also available when adding new routes (they are not
-available when setting defaults):
-- `description` - route description used for generating documentation (string).
-- `notes` - route notes used for generating documentation (string or array of strings).
-- `tags` - route tags used for generating documentation (array of strings).
-
-#### Route public interface
-
-When route information is returned or made available as a property, it is an object with the
-following:
-- `method` - the route HTTP method.
-- `path` - the route path.
-- `vhost` - the route vhost option if configured.
-- `realm` - the [active realm](#serverrealm) associated with the route.
-- `settings` - the [route options](#route-options) object with all defaults applied.
-- `fingerprint` - the route internal normalized string representing the normalized path.
-- `auth` - route authentication utilities:
-    - `access(request)` - authenticates the passed `request` argument against the route's
-      authentication `access` configuration. Returns `true` if the `request` would have passed
-      the route's access requirements. Note that the route's authentication mode and strategies
-      are ignored. The only match is made between the `request.auth.credentials` scope
-      and entity information and the route `access` configuration. Also, if the route uses
-      dynamic scopes, the scopes are constructed against the `request.query` and `request.params`
-      which may or may not match between the route and the request's route. If this method is
-      called using a request that has not been authenticated (yet or at all), it will return
-      `false` if the route requires any authentication.
-
-### Path parameters
-
-Parameterized paths are processed by matching the named parameters to the content of the incoming
-request path at that path segment. For example, '/book/{id}/cover' will match '/book/123/cover' and
-`request.params.id` will be set to `'123'`. Each path segment (everything between the opening '/'
-and the closing '/' unless it is the end of the path) can only include one named parameter. A
-parameter can cover the entire segment ('/{param}') or part of the segment ('/file.{ext}').  A path
-parameter may only contain letters, numbers and underscores, e.g. '/{file-name}' is invalid
-and '/{file_name}' is valid.
-
-An optional '?' suffix following the parameter name indicates an optional parameter (only allowed
-if the parameter is at the ends of the path or only covers part of the segment as in
-'/a{param?}/b'). For example, the route '/book/{id?}' matches '/book/' with the value of
-`request.params.id` set to an empty string `''`.
-
-```js
-const Hapi = require('hapi');
-const server = new Hapi.Server();
-server.connection({ port: 80 });
-
-const getAlbum = function (request, reply) {
-
-    return reply('You asked for ' +
-        (request.params.song ? request.params.song + ' from ' : '') +
-        request.params.album);
-};
-
-server.route({
-    path: '/{album}/{song?}',
-    method: 'GET',
-    handler: getAlbum
-});
-```
-
-In addition to the optional `?` suffix, a parameter name can also specify the number of matching
-segments using the `*` suffix, followed by a number greater than 1. If the number of expected parts
-can be anything, then use `*` without a number (matching any number of segments can only be used in
-the last path segment).
-
-```js
-const Hapi = require('hapi');
-const server = new Hapi.Server();
-server.connection({ port: 80 });
-
-const getPerson = function (request, reply) {
-
-    const nameParts = request.params.name.split('/');
-    return reply({ first: nameParts[0], last: nameParts[1] });
-};
-
-server.route({
-    path: '/person/{name*2}',   // Matches '/person/john/doe'
-    method: 'GET',
-    handler: getPerson
-});
-```
-
-### Path matching order
-
-The router iterates through the routing table on each incoming request and executes the first (and
-only the first) matching route. Route matching is done based on the combination of the request path
-and the HTTP verb (e.g. 'GET, 'POST'). The query is excluded from the routing logic. Requests are
-matched in a deterministic order where the order in which routes are added does not matter.
-
-Routes are matched based on the specificity of the route which is evaluated at each segment of the
-incoming request path. Each request path is split into its segment (the parts separated by `'/'`).
-The segments are compared to the routing table one at a time and are matched against the most
-specific path until a match is found. If no match is found, the next match is tried.
-
-When matching routes, string literals (no path parameter) have the highest priority, followed by
-mixed parameters (`'/a{p}b'`), parameters (`'/{p}'`), and then wildcard (`/{p*}`).
-
-Note that mixed parameters are slower to compare as they cannot be hashed and require an array
-iteration over all the regular expressions representing the various mixed parameter at each
-routing table node.
-
-#### Catch all route
-
-If the application needs to override the default Not Found (404) error response, it can add a
-catch-all route for a specific method or all methods. Only one catch-all route can be defined per
-server connection.
-
-```js
-const Hapi = require('hapi');
-const server = new Hapi.Server();
-server.connection({ port: 80 });
-
-const handler = function (request, reply) {
-
-    return reply('The page was not found').code(404);
-};
-
-server.route({ method: '*', path: '/{p*}', handler: handler });
-```
-
-### Route handler
-
-The route handler function uses the signature `function(request, reply)` (NOTE: do *not* use a fat arrow style function for route handlers as they do not allow context binding and will cause problems when used in conjunction with [server.bind](#server-bind)) where:
-- `request` - is the incoming [request object](#request-object) (this is not the node.js request
-  object).
-- `reply` - the [reply interface](#reply-interface) the handler must call to set a response and
+    - continues to **_Response validation**_ on first error or first takeover response.
+    - skips to _**Finalize request**_ on abort.
+
+- _**Response validation**_
+    - error handling based on [`failAction`](#route.options.response.failAction).
+    - continues to _**onPreResponse**_ on error.
+
+- _**onPreResponse**_
+    - always called, unless the request is aborted.
+    - the response contained in [`request.response`](#todo) may be modified (but not assigned a new
+      value). To return a different response type (for example, replace an error with an HTML
+      response), return a new response value. Note that any errors generated will not be passed
+      back to _**onPreResponse**_ to prevent an infinite loop.
+    - skips to **_Response transmission**_ on first error or first takeover response.
+    - skips to _**Finalize request**_ on abort.
+
+- _**Response transmission**_
+    - may emit `'request-error'` event.
+
+- _**Finalize request**_
+    - emits `'response'` event.
+
+### Lifecycle methods
+
+A function with the signature `await function(request, h)` where:
+- `request` - the [request object](#request-object).
+- `h` - the [response toolkit](#response-toolkit) the handler must call to set a response and
   return control back to the framework.
 
-```js
-const handler = function (request, reply) {
-
-    return reply('success');
-};
-```
-
-If the handler returns a Promise then Hapi will register a `catch` handler on the promise object to catch unhandled promise rejections. The handler will `reply` with the rejected value, wrapped in a [`Boom`](https://github.com/hapijs/boom) error:
-
-```js
-const handler = function (request, reply) {
-
-    const badPromise = () => {
-
-        new Promise((resolve, reject) => {
-
-            // Hapi catches this...
-            throw new Error();
-
-            // ...and this...
-            return reject(new Error());
-        }
-    }
-
-    // ...if you don't provide a 'catch'. The rejection will be wrapped in a Boom error.
-    return badPromise().then(reply);
-}
-```
-
-This provides a safety net for unhandled promise rejections.
-
-### Route prerequisites
-
-It is often necessary to perform prerequisite actions before the handler is called (e.g. load
-required reference data from a database). The route `pre` option allows defining such pre-handler
-methods. The methods are called in order. If the `pre` array contains another array, those methods
-are called in parallel. `pre` can be assigned a mixed array of:
-- arrays containing the elements listed below, which are executed in parallel.
-- objects with:
-    - `method` - the function to call (or short-hand method string as described below). the
-      function signature is identical to a route handler as described in
-      [Route handler](#route-handler).
-    - `assign` - key name to assign the result of the function to within `request.pre`.
-    - `failAction` - determines how to handle errors returned by the method. Allowed values are:
-        - `'error'` - returns the error response back to the client. This is the default value.
-        - `'log'` - logs the error but continues processing the request. If `assign` is used, the
-          error will be assigned.
-        - `'ignore'` - takes no special action. If `assign` is used, the error will be assigned.
-- functions - same as including an object with a single `method` key.
-- strings - special short-hand notation for registered
-  [server methods](#servermethodname-method-options) using the format 'name(args)' (e.g.
-  `'user(params.id)'`) where:
-    - 'name' - the method name. The name is also used as the default value of `assign`.
-    - 'args' - the method arguments (excluding `next`) where each argument is a property of
-      the [request object](#request-object).
-
-Note that prerequisites do not follow the same rules of the normal
-[reply interface](#reply-interface). In all other cases, calling `reply()` with or without a value
-will use the result as the response sent back to the client. In a prerequisite method, calling
-`reply()` will assign the returned value to the provided `assign` key. If the returned value is an
-error, the `failAction` setting determines the behavior. To force the return value as the response
-and skip any other prerequisites and the handler, use the `reply().takeover()` method.
-
-The reason for the difference in the reply interface behavior is to allow reusing handlers and
-prerequisites methods interchangeably. By default, the desired behavior for a prerequisite is to
-retain the result value and pass it on to the next step. Errors end the lifecycle by default. While
-less consistent, this allows easier code reusability.
-
-```js
-const Hapi = require('hapi');
-const server = new Hapi.Server();
-server.connection({ port: 80 });
-
-const pre1 = function (request, reply) {
-
-    return reply('Hello');
-};
-
-const pre2 = function (request, reply) {
-
-    return reply('World');
-};
-
-const pre3 = function (request, reply) {
-
-    return reply(request.pre.m1 + ' ' + request.pre.m2);
-};
-
-server.route({
-    method: 'GET',
-    path: '/',
-    config: {
-        pre: [
-            [
-                // m1 and m2 executed in parallel
-                { method: pre1, assign: 'm1' },
-                { method: pre2, assign: 'm2' }
-            ],
-            { method: pre3, assign: 'm3' },
-        ],
-        handler: function (request, reply) {
-
-            return reply(request.pre.m3 + '\n');
-        }
-    }
-});
-```
-
-### Request object
-
-The request object is created internally for each incoming request. It is **different** from the
-node.js request object received from the HTTP server callback (which is available in
-`request.raw.req`). The request object methods and properties change throughout the
-[request lifecycle](#request-lifecycle).
-
-#### Request properties
-
-Each request object includes the following properties:
-
-- `app` - application-specific state. Provides a safe place to store application data without
-  potential conflicts with the framework. Should not be used by [plugins](#plugins) which should use
-  `plugins[name]`.
-- `auth` - authentication information:
-    - `isAuthenticated` - `true` if the request has been successfully authenticated, otherwise
-      `false`.
-    - `credentials` - the `credential` object received during the authentication process. The
-      presence of an object does not mean successful authentication.
-    - `artifacts` - an artifact object received from the authentication strategy and used in
-      authentication-related actions.
-    - `mode` - the route authentication mode.
-    - `error` - the authentication error is failed and mode set to `'try'`.
-- `connection` - the connection the request was received by.
-- `domain` - the [node domain object](https://nodejs.org/api/domain.html#domain_domain) used to protect against exceptions thrown in extensions,
-  handlers and [route prerequisites](#route-prerequisites). Can be used to manually bind callback
-  functions otherwise bound to other domains. Set to `null` when the server `useDomains` options is
-  `false`.
-- `headers` - the raw request headers (references `request.raw.headers`).
-- `id` - a unique request identifier (using the format '{now}:{connection.info.id}:{5 digits counter}').
-- `info` - request information:
-    - `acceptEncoding` - the request preferred encoding.
-    - `cors` - if CORS is enabled for the route, contains the following:
-        - `isOriginMatch` - `true` if the request 'Origin' header matches the configured CORS
-          restrictions. Set to `false` if no 'Origin' header is found or if it does not match.
-          Note that this is only available after the `'onRequest'` extension point as CORS is
-          configured per-route and no routing decisions are made at that point in the request
-          lifecycle.
-    - `host` - content of the HTTP 'Host' header (e.g. 'example.com:8080').
-    - `hostname` - the hostname part of the 'Host' header (e.g. 'example.com').
-    - `received` - request reception timestamp.
-    - `referrer` - content of the HTTP 'Referrer' (or 'Referer') header.
-    - `remoteAddress` - remote client IP address.
-    - `remotePort` - remote client port.
-    - `responded` - request response timestamp (`0` is not responded yet).
-- `method` - the request method in lower case (e.g. `'get'`, `'post'`).
-- `mime` - the parsed content-type header. Only available when payload parsing enabled and no
-  payload error occurred.
-- `orig` - an object containing the values of `params`, `query`, and `payload` before any
-  validation modifications made. Only set when input validation is performed.
-- `params` - an object where each key is a path parameter name with matching value as described in
-  [Path parameters](#path-parameters).
-- `paramsArray` - an array containing all the path `params` values in the order they appeared in
-  the path.
-- `path` - the request URI's [pathname](https://nodejs.org/api/url.html#url_urlobject_pathname) component.
-- `payload` - the request payload based on the route `payload.output` and `payload.parse` settings.
-- `plugins` - plugin-specific state. Provides a place to store and pass request-level plugin data.
-  The `plugins` is an object where each key is a plugin name and the value is the state.
-- `pre` - an object where each key is the name assigned by a
-  [route prerequisites](#route-prerequisites) function. The values are the raw values provided to
-  the continuation function as argument. For the wrapped response object, use `responses`.
-- `response` - the response object when set. The object can be modified but must not be assigned
-  another object. To replace the response with another from within an
-  [extension point](#serverextevent-method-options), use `reply(response)` to override with a
-  different response. Contains `null` when no response has been set (e.g. when a request terminates
-  prematurely when the client disconnects).
-- `preResponses` - same as `pre` but represented as the response object created by the pre method.
-- `query` - by default the object outputted from [node's URL parse()](https://nodejs.org/docs/latest/api/url.html#url_urlobject_query) method.  Might also be set indirectly via [request.setUrl](#requestseturlurl-striptrailingslash) in which case it may be a `string` (if `url` is set to an object with the `query` attribute as an unparsed string).
-- `raw` - an object containing the Node HTTP server objects. **Direct interaction with these raw
-  objects is not recommended.**
-    - `req` - the node.js request object.
-    - `res` - the node.js response object.
-- `route` - the [route public interface](#route-public-interface).
-- `server` - the server object.
-- `state` - an object containing parsed HTTP state information (cookies) where each key is the
-  cookie name and value is the matching cookie content after processing using any registered cookie
-  definition.
-- `url` - the parsed request URI.
-
-#### `request.setUrl(url, [stripTrailingSlash]`
-
-_Available only in `'onRequest'` extension methods._
-
-Changes the request URI before the router begins processing the request where:
- - `url` - the new request URI. If `url` is a string, it is parsed with [node's **URL**
- `parse()`](https://nodejs.org/docs/latest/api/url.html#url_url_parse_urlstring_parsequerystring_slashesdenotehost)
- method with `parseQueryString` set to `true`.  `url` can also be set to an object
- compatible with node's **URL** `parse()` method output.
- - `stripTrailingSlash` - if `true`, strip the trailing slash from the path. Defaults to `false`.
-
-```js
-const Hapi = require('hapi');
-const server = new Hapi.Server();
-server.connection({ port: 80 });
-
-const onRequest = function (request, reply) {
-
-    // Change all requests to '/test'
-    request.setUrl('/test');
-    return reply.continue();
-};
-
-server.ext('onRequest', onRequest);
-```
-
-To use another query string parser:
-
-```js
-const Url = require('url');
-const Hapi = require('hapi');
-const Qs = require('qs');
-
-const server = new Hapi.Server();
-server.connection({ port: 80 });
-
-const onRequest = function (request, reply) {
-
-    const uri = request.url.href;
-    const parsed = Url.parse(uri, false);
-    parsed.query = Qs.parse(parsed.query);
-    request.setUrl(parsed);
-
-    return reply.continue();
-};
-
-server.ext('onRequest', onRequest);
-```
-
-
-#### `request.setMethod(method)`
-
-_Available only in `'onRequest'` extension methods._
-
-Changes the request method before the router begins processing the request where:
-- `method` - is the request HTTP method (e.g. `'GET'`).
-
-```js
-const Hapi = require('hapi');
-const server = new Hapi.Server();
-server.connection({ port: 80 });
-
-const onRequest = function (request, reply) {
-
-    // Change all requests to 'GET'
-    request.setMethod('GET');
-    return reply.continue();
-};
-
-server.ext('onRequest', onRequest);
-```
-
-#### `request.generateResponse(source, [options])`
-
-_Always available._
-
-Returns a [`response`](#response-object) which you can pass into the [reply interface](#reply-interface) where:
-- `source` - the value to set as the source of the [reply interface](#reply-interface), optional.
-- `options` - options for the method, optional.
-
-For example it can be used inside a promise to create a response object which has a non-error code to resolve with the [reply interface](#reply-interface):
-
-```js
-const handler = function (request, reply) {
-
-    const result = promiseMethod().then((thing) => {
-
-        if (!thing) {
-            return request.generateResponse().code(214);
-        }
-        return thing;
-    });
-    return reply(result);
-};
-```
-
-#### `request.log(tags, [data, [timestamp]])`
-
-_Always available._
-
-Logs request-specific events. When called, the server emits a `'request'` event which can be used
-by other listeners or [plugins](#plugins). The arguments are:
-- `tags` - a string or an array of strings (e.g. `['error', 'database', 'read']`) used to identify
-  the event. Tags are used instead of log levels and provide a much more expressive mechanism for
-  describing and filtering events.
-- `data` - an optional message string or object with the application data being logged. If `data`
-  is a function, the function signature is `function()` and it called once to generate (return
-  value) the actual data emitted to the listeners.
-- `timestamp` - an optional timestamp expressed in milliseconds. Defaults to `Date.now()` (now).
-
-Any logs generated by the server internally will be emitted only on the `'request-internal'`
-channel and will include the `event.internal` flag set to `true`.
-
-```js
-const Hapi = require('hapi');
-const server = new Hapi.Server();
-server.connection({ port: 80, routes: { log: true } });
-
-server.on('request', (request, event, tags) => {
-
-    if (tags.error) {
-        console.log(event);
-    }
-});
-
-const handler = function (request, reply) {
-
-    request.log(['test', 'error'], 'Test event');
-    return reply();
-};
-```
-
-#### `request.getLog([tags], [internal])`
-
-_Always available._
-
-Returns an array containing the events matching any of the tags specified (logical OR) where:
-- `tags` - is a single tag string or array of tag strings. If no `tags` specified, returns all
-  events.
-- `internal` - filters the events to only those with a matching `event.internal` value. If `true`,
-  only internal logs are included. If `false`, only user event are included. Defaults to all events
-  (`undefined`).
-
-Note that this methods requires the route `log` configuration set to `true`.
-
-```js
-request.getLog();
-request.getLog('error');
-request.getLog(['error', 'auth']);
-request.getLog(['error'], true);
-request.getLog(false);
-```
-
-#### `request.tail([name])`
-
-_Available until immediately after the `'response'` event is emitted._
-
-Adds a request tail which has to complete before the [request lifecycle](#request-lifecycle) is
-complete where:
-- `name` - an optional tail name used for logging purposes.
-
-Returns a tail function which must be called when the tail activity is completed.
-
-Tails are actions performed throughout the [request lifecycle](#request-lifecycle), but which may
-end after a response is sent back to the client. For example, a request may trigger a database
-update which should not delay sending back a response. However, it is still desirable to associate
-the activity with the request when logging it (or an error associated with it).
-
-When all tails completed, the server emits a `'tail'` event.
-
-```js
-const Hapi = require('hapi');
-const server = new Hapi.Server();
-server.connection({ port: 80 });
-
-const get = function (request, reply) {
-
-    const dbTail = request.tail('write to database');
-
-    db.save('key', 'value', () => {
-
-        dbTail();
-    });
-
-    return reply('Success!');
-};
-
-server.route({ method: 'GET', path: '/', handler: get });
-
-server.on('tail', (request) => {
-
-    console.log('Request completed including db activity');
-});
-```
-
-#### Request events
-
-The [request object](#request-object) supports the following events:
-
-- `'peek'` - emitted for each chunk of payload data read from the client connection. The event
-  method signature is `function(chunk, encoding)`.
-- `'finish'` - emitted when the request payload finished reading. The event method signature is
-  `function ()`.
-- `'disconnect'` - emitted when a request errors or aborts unexpectedly.
-
-```js
-const Crypto = require('crypto');
-const Hapi = require('hapi');
-const server = new Hapi.Server();
-server.connection({ port: 80 });
-
-const onRequest = function (request, reply) {
-
-    const hash = Crypto.createHash('sha1');
-    request.on('peek', (chunk) => {
-
-        hash.update(chunk);
-    });
-
-    request.once('finish', () => {
-
-        console.log(hash.digest('hex'));
-    });
-
-    request.once('disconnect', () => {
-
-        console.error('request aborted');
-    });
-
-    return reply.continue();
-};
-
-server.ext('onRequest', onRequest);
-```
-
-## Reply interface
-
 The various [request lifecycle](#request-lifecycle) events (e.g. extensions, authentication,
-[route prerequisites](#route-prerequisites), handlers) provide a reply interface as one of the
+[route pre-handler methods](#route.options.pre), handlers) provide a reply interface as one of the
 function arguments. The reply interface acts as both a callback interface to return control to the
 framework and a response generator.
 
 When `reply()` is called with an error or result response, that value is used as the response sent
-to the client. When `reply()` is called within a prerequisite, the value is saved for future use
+to the client. When `reply()` is called within a pre-handler method, the value is saved for future use
 and is not used as the response. In all other places except for the handler, calling `reply()` will
 be considered an error and will abort the [request lifecycle](#request-lifecycle), jumping directly
 to the `'onPreResponse'` event.
@@ -3385,9 +3495,9 @@ Both `err` and `result` can be set to:
 - any other object or array
 
 ```js
-const handler = function (request, reply) {
+const handler = function (request, h) {
 
-    return reply('success');
+    return 'success';
 };
 ```
 
@@ -3406,18 +3516,18 @@ The [response flow control rules](#flow-control) apply.
 ```js
 // Detailed notation
 
-const handler = function (request, reply) {
+const handler = function (request, h) {
 
-    const response = reply('success');
+    const response = h.response('success');
     response.type('text/plain');
     response.header('X-Custom', 'some-value');
 };
 
 // Chained notation
 
-const handler = function (request, reply) {
+const handler = function (request, h) {
 
-    return reply('success')
+    return h.response('success')
         .type('text/plain')
         .header('X-Custom', 'some-value');
 };
@@ -3444,7 +3554,7 @@ Every response includes the following properties:
 - `headers` - an object containing the response headers where each key is a header field name. Note
   that this is an incomplete list of headers to be included with the response. Additional headers
   will be added once the response is prepared for transmission.
-- `source` - the value provided using the [reply interface](#reply-interface).
+- `source` - the value provided using the [reply interface](#response-toolkit).
 - `variety` - a string indicating the type of `source` with available values:
     - `'plain'` - a plain response such as string, number, `null`, or simple object (e.g. not a
       `Stream`, `Buffer`, or view).
@@ -3545,7 +3655,7 @@ The response object provides the following methods:
     - `header` - the HTTP request header name.
 - `hold()` - see [flow control](#flow-control).
 - `send()` - see [flow control](#flow-control).
-- `takeover()` - see [route prerequisites](#route-prerequisites).
+- `takeover()` - see [route pre-handler methods](#route.options.pre).
 
 ##### Response Object Redirect Methods
 
@@ -3585,14 +3695,13 @@ The response object supports the following events:
 ```js
 const Crypto = require('crypto');
 const Hapi = require('hapi');
-const server = new Hapi.Server();
-server.connection({ port: 80 });
+const server = Hapi.server({ port: 80 });
 
-const preResponse = function (request, reply) {
+const preResponse = function (request, h) {
 
     const response = request.response;
     if (response.isBoom) {
-        return reply();
+        return null;
     }
 
     const hash = Crypto.createHash('sha1');
@@ -3606,7 +3715,7 @@ const preResponse = function (request, reply) {
         console.log(hash.digest('hex'));
     });
 
-    return reply.continue();
+    return h.continue;
 };
 
 server.ext('onPreResponse', preResponse);
@@ -3616,7 +3725,7 @@ server.ext('onPreResponse', preResponse);
 
 **hapi** uses the [**boom**](https://github.com/hapijs/boom) error library for all its internal
 error generation. **boom** provides an expressive interface to return HTTP errors. Any error
-returned via the [reply interface](#reply-interface) is converted to a **boom** object and defaults
+returned via the [response toolkit](#response-toolkit) is converted to a **boom** object and defaults
 to status code `500` if the error is not a **boom** object.
 
 When the error is sent back to the client, the response contains a JSON object with the
@@ -3626,23 +3735,23 @@ When the error is sent back to the client, the response contains a JSON object w
 const Hapi = require('hapi');
 const Boom = require('boom');
 
-const server = new Hapi.Server();
+const server = Hapi.server();
 
 server.route({
     method: 'GET',
     path: '/badRequest',
-    handler: function (request, reply) {
+    handler: function (request, h) {
 
-        return reply(Boom.badRequest('Unsupported parameter'));
+        throw Boom.badRequest('Unsupported parameter');
     }
 });
 
 server.route({
     method: 'GET',
     path: '/internal',
-    handler: function (request, reply) {
+    handler: function (request, h) {
 
-        return reply(new Error('unexpect error'));
+        throw new Error('unexpect error');
     }
 });
 ```
@@ -3673,15 +3782,13 @@ It also supports the following method:
 ```js
 const Boom = require('boom');
 
-const handler = function (request, reply) {
+const handler = function (request, h) {
 
     const error = Boom.badRequest('Cannot feed after midnight');
     error.output.statusCode = 499;    // Assign a custom error code
     error.reformat();
-
     error.output.payload.custom = 'abc_123'; // Add custom key
-
-    return reply(error);
+    throw error;
 });
 ```
 
@@ -3692,7 +3799,7 @@ a different response object.
 ```js
 const Hapi = require('hapi');
 const Vision = require('vision');
-const server = new Hapi.Server();
+const server = Hapi.server({ port: 80 });
 server.register(Vision, (err) => {
     server.views({
         engines: {
@@ -3700,13 +3807,12 @@ server.register(Vision, (err) => {
         }
   });
 });
-server.connection({ port: 80 });
 
-const preResponse = function (request, reply) {
+const preResponse = function (request, h) {
 
     const response = request.response;
     if (!response.isBoom) {
-        return reply.continue();
+        return h.continue;
     }
 
     // Replace error with friendly HTML
@@ -3716,40 +3822,16 @@ const preResponse = function (request, reply) {
           message: (error.output.statusCode === 404 ? 'page not found' : 'something went wrong')
       };
 
-      return reply.view('error', ctx).code(error.output.statusCode);
+      return h.view('error', ctx).code(error.output.statusCode);
 };
 
 server.ext('onPreResponse', preResponse);
 ```
 
-#### Flow control
-
-When calling `reply()`, the framework waits until `process.nextTick()` to continue processing the
-request and transmit the response. This enables making changes to the returned
-[response object](#response-object) before the response is sent. This means the framework
-will resume as soon as the handler method exits. To suspend this behavior, the returned
-`response` object supports the following methods:
-- `hold()` - puts the response on hold until `response.send()` is called. Available only after
-  `reply()` is called and until `response.hold()` is invoked once.
-- `send()` - immediately resume the response. Available only after
-  `response.hold()` is called and until `response.send()` is invoked once.
-
-```js
-const handler = function (request, reply) {
-
-    const response = reply('success').hold();
-
-    setTimeout(() => {
-
-        response.send();
-    }, 1000);
-};
-```
-
 ### `reply.continue([result])`
 
 Returns control back to the framework without ending the request lifecycle, where:
-- `result` - if called in the handler, prerequisites, or extension points other than the `'onPreHandler'`
+- `result` - if called in the handler, pre-handler methods, or extension points other than the `'onPreHandler'`
   and `'onPreResponse'`, the `result` argument is not allowed and will throw an exception if present. If
   called within an authentication strategy, it sets the authenticated credentials. If called by the
   `'onPreHandler'` or `'onPreResponse'` extensions, the `result` argument overrides the current response
@@ -3758,8 +3840,7 @@ Returns control back to the framework without ending the request lifecycle, wher
 
 ```js
 const Hapi = require('hapi');
-const server = new Hapi.Server();
-server.connection({ port: 80 });
+const server = Hapi.server({ port: 80 });
 
 const onRequest = function (request, reply) {
 
@@ -3778,9 +3859,9 @@ decide if the response is going to qualify for an HTTP 304 (Not Modified). If th
 the request conditions, `reply.entity()` returns control back to the framework with a 304 response.
 Otherwise, it sets the provided entity headers and returns `null`, where:
 - `options` - a required configuration object with:
-	- `etag` - the ETag string. Required if `modified` is not present. Defaults to no header.
-	- `modified` - the Last-Modified header value. Required if `etag` is not present. Defaults to no header.
-	- `vary` - same as the `response.etag()` option. Defaults to `true`.
+    - `etag` - the ETag string. Required if `modified` is not present. Defaults to no header.
+    - `modified` - the Last-Modified header value. Required if `etag` is not present. Defaults to no header.
+    - `vary` - same as the `response.etag()` option. Defaults to `true`.
 
 Returns a response object if the reply is unmodified or `null` if the response has changed. If `null` is
 returned, the developer must call `reply()` to continue execution. If the response is not `null`, the developer
@@ -3788,8 +3869,7 @@ must not call `reply()`.
 
 ```js
 const Hapi = require('hapi');
-const server = new Hapi.Server();
-server.connection({ port: 80 });
+const server = Hapi.server({ port: 80 });
 
 server.route({
     method: 'GET',
@@ -3810,25 +3890,25 @@ server.route({
 });
 ```
 
-### `reply.close([options])`
+### `reply.abort`
 
 Concludes the handler activity by returning control over to the router and informing the router
 that a response has already been sent back directly via `request.raw.res` and that no further
 response action is needed. Supports the following optional options:
-- `end` - if `false`, the router will not call `request.raw.res.end())` to ensure the response was
-  ended. Defaults to `true`.
+the router will not call `request.raw.res.end())` to ensure the response was ended.
 
-No return value.
+### `reply.close`
 
-The [response flow control rules](#flow-control) **do not** apply.
+Concludes the handler activity by returning control over to the router and informing the router
+that a response has already been sent back directly via `request.raw.res` and that no further
+response action is needed. Supports the following optional options:
+the router will call `request.raw.res.end())` to ensure the response was ended.
 
 ### `reply.redirect(uri)`
 
 Redirects the client to the specified uri. Same as calling `reply().redirect(uri)`.
 
 Returns a [response object](#response-object).
-
-The [response flow control rules](#flow-control) apply.
 
 ```js
 const handler = function (request, reply) {
@@ -3849,7 +3929,7 @@ const handler = function (request, reply) {
 };
 ```
 
-### `reply.state(name, value, [options])`
+### `h.state(name, value, [options])`
 
 Sets a cookie on the [response (see response object methods)](#response-object).
 
@@ -3861,7 +3941,7 @@ const handler = function (request, reply) {
 };
 ```
 
-### `reply.unstate(name, [options])`
+### `h.unstate(name, [options])`
 
 Clears a cookie on the [response (see response object methods)](#response-object).
 
@@ -3873,5 +3953,318 @@ const handler = function (request, reply) {
 };
 ```
 
-Changing to a permanent or non-rewritable redirect is also available see
-[response object redirect](#response-object-redirect) for more information.
+## Request
+
+The request object is created internally for each incoming request. It is not the same object
+received from the node HTTP server callback (which is available via [`request.raw.req`](#todo)).
+The request properties change throughout the [request lifecycle](#request-lifecycle).
+
+### Request properties
+
+#### <a name="request.app" /> `app`
+
+- `` - application-specific state. Provides a safe place to store application data without
+  potential conflicts with the framework. Should not be used by [plugins](#plugins) which should use
+  `plugins[name]`.
+
+#### <a name="request.auth" /> `auth`
+
+- `` - authentication information:
+    - `isAuthenticated` - `true` if the request has been successfully authenticated, otherwise
+      `false`.
+    - `credentials` - the `credential` object received during the authentication process. The
+      presence of an object does not mean successful authentication.
+    - `artifacts` - an artifact object received from the authentication strategy and used in
+      authentication-related actions.
+    - `mode` - the route authentication mode.
+    - `error` - the authentication error is failed and mode set to `'try'`.
+
+#### <a name="request.headers" /> `headers`
+
+- `` - the raw request headers (references `request.raw.headers`).
+
+#### <a name="request.info" /> `info`
+
+- `` - request information:
+    - `acceptEncoding` - the request preferred encoding.
+    - `cors` - if CORS is enabled for the route, contains the following:
+        - `isOriginMatch` - `true` if the request 'Origin' header matches the configured CORS
+          restrictions. Set to `false` if no 'Origin' header is found or if it does not match.
+          Note that this is only available after the `'onRequest'` extension point as CORS is
+          configured per-route and no routing decisions are made at that point in the request
+          lifecycle.
+    - `host` - content of the HTTP 'Host' header (e.g. 'example.com:8080').
+    - `hostname` - the hostname part of the 'Host' header (e.g. 'example.com').
+- `id` - a unique request identifier (using the format '{now}:{connection.info.id}:{5 digits counter}').
+    - `received` - request reception timestamp.
+    - `referrer` - content of the HTTP 'Referrer' (or 'Referer') header.
+    - `remoteAddress` - remote client IP address.
+    - `remotePort` - remote client port.
+    - `responded` - request response timestamp (`0` is not responded yet).
+
+#### <a name="request.method" /> `method`
+
+- `` - the request method in lower case (e.g. `'get'`, `'post'`).
+
+#### <a name="request.mime" /> `mime`
+
+- `` - the parsed content-type header. Only available when payload parsing enabled and no
+  payload error occurred.
+
+#### <a name="request.orig" /> `orig`
+
+- `` - an object containing the values of `params`, `query`, and `payload` before any
+  validation modifications made. Only set when input validation is performed.
+
+#### <a name="request.params" /> `params`
+
+- `` - an object where each key is a path parameter name with matching value as described in
+  [Path parameters](#path-parameters).
+
+#### <a name="request.paramsArray" /> `paramsArray`
+
+- `` - an array containing all the path `params` values in the order they appeared in
+  the path.
+
+#### <a name="request.path" /> `path`
+
+- `` - the request URI's [pathname](https://nodejs.org/api/url.html#url_urlobject_pathname) component.
+
+#### <a name="request.payload" /> `payload`
+
+- `` - the request payload based on the route `payload.output` and `payload.parse` settings.
+
+#### <a name="request.plugins" /> `plugins`
+
+- `` - plugin-specific state. Provides a place to store and pass request-level plugin data.
+  The `plugins` is an object where each key is a plugin name and the value is the state.
+
+#### <a name="request.pre" /> `pre`
+
+- `` - an object where each key is the name assigned by a
+  [route pre-handler methods](#route.options.pre) function. The values are the raw values provided to
+  the continuation function as argument. For the wrapped response object, use `responses`.
+
+#### <a name="request.response" /> `response`
+
+- `` - the response object when set. The object can be modified but must not be assigned
+  another object. To replace the response with another from within an
+  [extension point](#serverextevent-method-options), use `reply(response)` to override with a
+  different response. Contains `null` when no response has been set (e.g. when a request terminates
+  prematurely when the client disconnects).
+
+#### <a name="request.preResponses" /> `preResponses`
+
+- `` - same as `pre` but represented as the response object created by the pre method.
+
+#### <a name="request.query" /> `query`
+
+- `` - by default the object outputted from [node's URL parse()](https://nodejs.org/docs/latest/api/url.html#url_urlobject_query) method.  Might also be set indirectly via [request.setUrl](#requestseturlurl-striptrailingslash) in which case it may be a `string` (if `url` is set to an object with the `query` attribute as an unparsed string).
+
+#### <a name="request.raw" /> `raw`
+
+- `` - an object containing the Node HTTP server objects. **Direct interaction with these raw
+  objects is not recommended.**
+    - `req` - the node request object.
+    - `res` - the node response object.
+
+#### <a name="request.route" /> `route`
+
+The request route information object, where:
+- `method` - the route HTTP method.
+- `path` - the route path.
+- `vhost` - the route vhost option if configured.
+- `realm` - the [active realm](#serverrealm) associated with the route.
+- `settings` - the [route options](#route-options) object with all defaults applied.
+- `fingerprint` - the route internal normalized string representing the normalized path.
+- `auth` - route authentication utilities:
+    - `access(request)` - authenticates the passed `request` argument against the route's
+      authentication `access` configuration. Returns `true` if the `request` would have passed
+      the route's access requirements. Note that the route's authentication mode and strategies
+      are ignored. The only match is made between the `request.auth.credentials` scope
+      and entity information and the route `access` configuration. Also, if the route uses
+      dynamic scopes, the scopes are constructed against the `request.query` and `request.params`
+      which may or may not match between the route and the request's route. If this method is
+      called using a request that has not been authenticated (yet or at all), it will return
+      `false` if the route requires any authentication.
+
+#### <a name="request.server" /> `server`
+
+- `` - the server object.
+
+#### <a name="request.state" /> `state`
+
+- `` - an object containing parsed HTTP state information (cookies) where each key is the
+  cookie name and value is the matching cookie content after processing using any registered cookie
+  definition.
+
+#### <a name="request.url" /> url``
+
+- `` - the parsed request URI.
+
+### `request.setUrl(url, [stripTrailingSlash]`
+
+Changes the request URI before the router begins processing the request where:
+ - `url` - the new request URI. If `url` is a string, it is parsed with [node's **URL**
+ `parse()`](https://nodejs.org/docs/latest/api/url.html#url_url_parse_urlstring_parsequerystring_slashesdenotehost)
+ method with `parseQueryString` set to `true`.  `url` can also be set to an object
+ compatible with node's **URL** `parse()` method output.
+ - `stripTrailingSlash` - if `true`, strip the trailing slash from the path. Defaults to `false`.
+
+```js
+const Hapi = require('hapi');
+const server = Hapi.server({ port: 80 });
+
+const onRequest = function (request, h) {
+
+    // Change all requests to '/test'
+    request.setUrl('/test');
+    return h.continue;
+};
+
+server.ext('onRequest', onRequest);
+```
+
+To use another query string parser:
+
+```js
+const Url = require('url');
+const Hapi = require('hapi');
+const Qs = require('qs');
+
+const server = Hapi.server({ port: 80 });
+
+const onRequest = function (request, h) {
+
+    const uri = request.url.href;
+    const parsed = Url.parse(uri, false);
+    parsed.query = Qs.parse(parsed.query);
+    request.setUrl(parsed);
+
+    return h.continue;
+};
+
+server.ext('onRequest', onRequest);
+```
+
+Can only be called from an `'onRequest'` extension method.
+
+### `request.setMethod(method)`
+
+Changes the request method before the router begins processing the request where:
+- `method` - is the request HTTP method (e.g. `'GET'`).
+
+```js
+const Hapi = require('hapi');
+const server = Hapi.server({ port: 80 });
+
+const onRequest = function (request, h) {
+
+    // Change all requests to 'GET'
+    request.setMethod('GET');
+    return h.continue;
+};
+
+server.ext('onRequest', onRequest);
+```
+
+Can only be called from an `'onRequest'` extension method.
+
+### `request.generateResponse(source, [options])`
+
+Returns a [`response`](#response-object) which you can pass into the [reply interface](#response-toolkit) where:
+- `source` - the value to set as the source of the [reply interface](#response-toolkit), optional.
+- `options` - options for the method, optional.
+
+```
+
+### `request.log(tags, [data, [timestamp]])`
+
+Logs request-specific events. When called, the server emits a `'request'` event which can be used
+by other listeners or [plugins](#plugins). The arguments are:
+- `tags` - a string or an array of strings (e.g. `['error', 'database', 'read']`) used to identify
+  the event. Tags are used instead of log levels and provide a much more expressive mechanism for
+  describing and filtering events.
+- `data` - an optional message string or object with the application data being logged. If `data`
+  is a function, the function signature is `function()` and it called once to generate (return
+  value) the actual data emitted to the listeners.
+- `timestamp` - an optional timestamp expressed in milliseconds. Defaults to `Date.now()` (now).
+
+Any logs generated by the server internally will be emitted only on the `'request-internal'`
+channel and will include the `event.internal` flag set to `true`.
+
+```js
+const Hapi = require('hapi');
+const server = Hapi.server({ port: 80, routes: { log: true } });
+
+server.on('request', (request, event, tags) => {
+
+    if (tags.error) {
+        console.log(event);
+    }
+});
+
+const handler = function (request, h) {
+
+    request.log(['test', 'error'], 'Test event');
+    return null;
+};
+```
+
+### `request.getLog([tags], [internal])`
+
+Returns an array containing the events matching any of the tags specified (logical OR) where:
+- `tags` - is a single tag string or array of tag strings. If no `tags` specified, returns all
+  events.
+- `internal` - filters the events to only those with a matching `event.internal` value. If `true`,
+  only internal logs are included. If `false`, only user event are included. Defaults to all events
+  (`undefined`).
+
+Note that this methods requires the route `log` configuration set to `true`.
+
+```js
+request.getLog();
+request.getLog('error');
+request.getLog(['error', 'auth']);
+request.getLog(['error'], true);
+request.getLog(false);
+```
+
+### Request events
+
+The [request object](#request-object) supports the following events:
+
+- `'peek'` - emitted for each chunk of payload data read from the client connection. The event
+  method signature is `function(chunk, encoding)`.
+- `'finish'` - emitted when the request payload finished reading. The event method signature is
+  `function ()`.
+- `'disconnect'` - emitted when a request errors or aborts unexpectedly.
+
+```js
+const Crypto = require('crypto');
+const Hapi = require('hapi');
+const server = Hapi.server({ port: 80 });
+
+const onRequest = function (request, h) {
+
+    const hash = Crypto.createHash('sha1');
+    request.on('peek', (chunk) => {
+
+        hash.update(chunk);
+    });
+
+    request.once('finish', () => {
+
+        console.log(hash.digest('hex'));
+    });
+
+    request.once('disconnect', () => {
+
+        console.error('request aborted');
+    });
+
+    return h.continue;
+};
+
+server.ext('onRequest', onRequest);
+```
