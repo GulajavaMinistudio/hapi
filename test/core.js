@@ -410,8 +410,10 @@ describe('Core', () => {
 
         it('fails to start server when registration incomplete', async () => {
 
-            const plugin = function () { };
-            plugin.attributes = { name: 'plugin' };
+            const plugin = {
+                name: 'plugin',
+                register: Hoek.ignore
+            };
 
             const server = Hapi.server();
             server.register(plugin);
@@ -426,6 +428,7 @@ describe('Core', () => {
             const server = Hapi.server();
             await server.start();
             await expect(server.initialize()).to.reject('Cannot initialize server while it is in started phase');
+            await server.stop();
         });
 
         it('fails to start server when starting', async () => {
@@ -450,8 +453,8 @@ describe('Core', () => {
             await server.initialize();
 
             await cache.set('a', 'going in', 0);
-            const { value: value1 } = await cache.get('a');
-            expect(value1).to.equal('going in');
+            const value = await cache.get('a');
+            expect(value).to.equal('going in');
             await server.stop();
             await expect(cache.get('a')).to.reject();
         });
@@ -1067,7 +1070,7 @@ describe('Core', () => {
             server.route({ path: '/test/', method: 'get', handler: () => null });
             server.route({ path: '/test/{p}/end', method: 'get', handler: () => null });
 
-            const routes = server.table()[0].table;
+            const routes = server.table();
             expect(routes.length).to.equal(2);
             expect(routes[0].path).to.equal('/test/');
         });
@@ -1081,7 +1084,7 @@ describe('Core', () => {
             server.route({ path: '/test/', vhost: 'two.example.com', method: 'get', handler: () => null });
             server.route({ path: '/test/{p}/end', method: 'get', handler: () => null });
 
-            const routes = server.table()[0].table;
+            const routes = server.table();
             expect(routes.length).to.equal(4);
         });
 
@@ -1094,7 +1097,7 @@ describe('Core', () => {
             server.route({ path: '/test/', vhost: 'two.example.com', method: 'get', handler: () => null });
             server.route({ path: '/test/{p}/end', method: 'get', handler: () => null });
 
-            const routes = server.table('one.example.com')[0].table;
+            const routes = server.table('one.example.com');
             expect(routes.length).to.equal(3);
         });
 
@@ -1107,7 +1110,7 @@ describe('Core', () => {
             server.route({ path: '/test/', vhost: 'two.example.com', method: 'get', handler: () => null });
             server.route({ path: '/test/{p}/end', method: 'get', handler: () => null });
 
-            const routes = server.table(['one.example.com', 'two.example.com'])[0].table;
+            const routes = server.table(['one.example.com', 'two.example.com']);
             expect(routes.length).to.equal(4);
         });
 
@@ -1120,7 +1123,7 @@ describe('Core', () => {
             server.route({ path: '/test/', vhost: 'two.example.com', method: 'get', handler: () => null });
             server.route({ path: '/test/{p}/end', method: 'get', handler: () => null });
 
-            const routes = server.table('three.example.com')[0].table;
+            const routes = server.table('three.example.com');
             expect(routes.length).to.equal(2);
         });
     });
@@ -1183,18 +1186,18 @@ describe('Core', () => {
 
             server.ext('onPreHandler', preHandler);
 
-            const test = function (plugin, options) {
+            const test = {
+                name: 'test',
 
-                plugin.views({
-                    engines: { html: Handlebars },
-                    path: './no_such_directory_found'
-                });
+                register: function (plugin, options) {
 
-                plugin.route({ path: '/view', method: 'GET', handler: () => null });
-            };
+                    plugin.views({
+                        engines: { html: Handlebars },
+                        path: './no_such_directory_found'
+                    });
 
-            test.attributes = {
-                name: 'test'
+                    plugin.route({ path: '/view', method: 'GET', handler: () => null });
+                }
             };
 
             await server.register(test);
@@ -1634,7 +1637,7 @@ describe('Core', () => {
                 }
             ]);
 
-            const table = server.table()[0].table;
+            const table = server.table();
             const paths = table.map((route) => {
 
                 const obj = {

@@ -1,6 +1,6 @@
 {
   "name": "hapi",
-  "version": "17.0.0-rc6",
+  "version": "17.0.0-rc8",
   "lockfileVersion": 1,
   "dependencies": {
     "accept": {
@@ -24,8 +24,8 @@
       "resolved": "https://registry.npmjs.org/call/-/call-5.0.0.tgz"
     },
     "catbox": {
-      "version": "8.0.0",
-      "resolved": "https://registry.npmjs.org/catbox/-/catbox-8.0.0.tgz"
+      "version": "9.0.0",
+      "resolved": "https://registry.npmjs.org/catbox/-/catbox-9.0.0.tgz"
     },
     "catbox-memory": {
       "version": "3.0.0",
@@ -52,8 +52,8 @@
       "resolved": "https://registry.npmjs.org/iron/-/iron-5.0.1.tgz"
     },
     "joi": {
-      "version": "11.1.0",
-      "resolved": "https://registry.npmjs.org/joi/-/joi-11.1.0.tgz"
+      "version": "13.0.0",
+      "resolved": "https://registry.npmjs.org/joi/-/joi-13.0.0.tgz"
     },
     "mime-db": {
       "version": "1.30.0",
