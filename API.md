@@ -224,6 +224,7 @@
     - [`query`](#request.query)
     - [`raw`](#request.raw)
     - [`route`](#request.route)
+      - [`route.auth.access(request)`](#request.route.auth.access())
     - [`server`](#request.server)
     - [`state`](#request.state)
     - [`url`](#request.url)
@@ -329,10 +330,17 @@ assigned one or more (array):
 
 #### <a name="server.options.compression" /> `compression`
 
-Default value: `true`.
+Default value: `{ minBytes: 1024 }`.
 
 Defines server handling of content encoding requests. If `false`, response content encoding is
 disabled and no compression is performed by the server.
+
+##### <a name="server.options.compression.minBytes" /> `minBytes`
+
+Default value: '1024'.
+
+Sets the minimum response payload size in bytes that is required for content encoding compression.
+If the payload size is under the limit, no compression is performed.
 
 #### <a name="server.options.debug" /> `debug`
 
@@ -711,12 +719,11 @@ The internally generated events are (identified by their `tags`):
   authentication strategy (no credentials found).
 - `auth` `unauthenticated` `try` `{strategy}` - the request failed to pass the listed
   authentication strategy in `'try'` mode and will continue.
-- `auth` `scope` `error` `{strategy}` - the request authenticated but failed to meet the scope
-  requirements.
-- `auth` `entity` `user` `error` `{strategy}` - the request authenticated but included an
-  application entity when a user entity was required.
-- `auth` `entity` `app` `error` `{strategy}` - the request authenticated but included a user
-  entity when an application entity was required.
+- `auth` `scope` `error` - the request authenticated but failed to meet the scope requirements.
+- `auth` `entity` `user` `error` - the request authenticated but included an application entity
+  when a user entity was required.
+- `auth` `entity` `app` `error` - the request authenticated but included a user entity when an
+  application entity was required.
 - `handler` `error` - the route handler returned an error. Includes the execution duration and the
   error message.
 - `pre` `error` - a pre method was executed and returned an error. Includes the execution duration,
@@ -1253,13 +1260,10 @@ Provisions a cache segment within the server cache facility where:
       all cache records expire. Uses local time. Cannot be used together with `expiresIn`.
 
     - `generateFunc` - a function used to generate a new cache item if one is not found in the
-      cache when calling `get()`. The method's signature is `function(id)` where:
+      cache when calling `get()`. The method's signature is `async function(id, flags)` where:
 
           - `id` - the `id` string or object provided to the `get()` method.
-          - `next` - the method called when the new item is returned with the signature
-            `function(err, value, ttl)` where:
-              - `err` - an error condition.
-              - `value` - the new value generated.
+          - `flags` - an object used to pass back additional flags to the cache where:
               - `ttl` - the cache ttl value in milliseconds. Set to `0` to skip storing in the
                 cache. Defaults to the cache global policy.
 
@@ -1464,16 +1468,18 @@ Used within a plugin to declare a required dependency on other [plugins](#plugin
   order for this plugin to operate. Plugins listed must be registered before the server is
   initialized or started.
 
-- `after` - (optional) an function called after all the specified dependencies have been registered
-  and before the server starts. The function is only called if the server is initialized or started. If a circular
-  dependency is detected, an exception is thrown (e.g. two plugins each has an `after` function
-  to be called after the other). The function signature is `function(server)` where:
+- `after` - (optional) a function that is called after all the specified dependencies have been
+registered and before the server starts. The function is only called if the server is initialized
+or started. The function signature is `async function(server)` where:
 
     - `server` - the server the `dependency()` method was called on.
-
+  
 Return value: none.
 
 The `after` method is identical to setting a server extension point on `'onPreStart'`.
+
+If a circular  dependency is detected, an exception is thrown (e.g. two plugins each has an `after`
+function to be called after the other). 
 
 The method does not provide version dependency which should be implemented using
 [npm peer dependencies](http://blog.nodejs.org/2013/02/07/peer-dependencies/).
@@ -1554,9 +1560,8 @@ Register custom application events where:
 
         - `tags` - if `true` and the `criteria` object passed to [`server.event.emit()`](#server.event.emit())
           includes `tags`, the tags are mapped to an object (where each tag string is the key and
-          the value is `true`) which is appended to the arguments list at the end (but before
-          the `callback` argument if `block` is set). A configuration override can be set by each
-          listener. Defaults to `false`.
+          the value is `true`) which is appended to the arguments list at the end. A configuration
+          override can be set by each listener. Defaults to `false`.
 
         - `shared` - if `true`, the same event `name` can be registered multiple times where the
           second registration is ignored. Note that if the registration config is changed between
@@ -1622,13 +1627,6 @@ Subscribe to an event where:
 
         - `name` - (required) the event name string.
 
-        - `block` - if `true`, the `listener` method receives an additional `callback` argument
-          which must be called when the method completes. No other event will be emitted until the
-          `callback` methods is called. The method signature is `function()`. If `block` is set to
-          a positive integer, the value is used to set a timeout after which any pending events
-          will be emitted, ignoring the eventual call to `callback`. Defaults to `false` (non
-          blocking).
-
         - `channels` - a string or array of strings specifying the event channels to subscribe to.
           If the event registration specified a list of allowed channels, the `channels` array must
           match the allowed channels. If `channels` are specified, event updates without any
@@ -1660,12 +1658,11 @@ Subscribe to an event where:
 
         - `tags` - if `true` and the `criteria` object passed to [`server.event.emit()`](#server.event.emit())
           includes `tags`, the tags are mapped to an object (where each tag string is the key and
-          the value is `true`) which is appended to the arguments list at the end (but before
-          the `callback` argument if `block` is set). Defaults to the event registration option
-          (which defaults to `false`).
+          the value is `true`) which is appended to the arguments list at the end. Defaults to the
+          event registration option (which defaults to `false`).
 
 - `listener` - the handler method set to receive event updates. The function signature depends on
-  the `block`, `spread`, and `tags` options.
+  the event argument, and the `spread` and `tags` options.
 
 Return value: none.
 
@@ -1771,12 +1768,11 @@ points where:
     - `method` - (required) a function or an array of functions to be executed at a specified point
       during request processing. The required extension function signature is:
 
-        - server extension points: `function(server)` where:
+        - server extension points: `async function(server)` where:
 
             - `server` - the server object.
-            - `next` - the continuation method with signature `function(err)`.
-            - `this` - the object provided via `options.bind` or the current active context set with
-              [`server.bind()`](#server.bind()).
+            - `this` - the object provided via `options.bind` or the current active context set
+              with [`server.bind()`](#server.bind()).
 
         - request extension points: a [lifecycle method](#lifecycle-methods).
 
@@ -2420,10 +2416,9 @@ across multiple requests. Registers a cookie definitions where:
 
     - `autoValue` - if present and the cookie was not received from the client or explicitly set by
       the route handler, the cookie is automatically added to the response with the provided value.
-      The value can be a function with signature `function(request)` where:
+      The value can be a function with signature `async function(request)` where:
 
         - `request` - the [request object](#request-object).
-        - `next` - the continuation function using the `function(err, value)` signature.
 
     - `encoding` - encoding performs on the provided value before serialization. Options are:
 
@@ -2596,8 +2591,9 @@ with a `!` character, that scope is forbidden. For example, the scope `['!a', '+
 means the incoming request credentials' `scope` must not include 'a', must include 'b', and must
 include one of 'c' or 'd'.
 
-You may also access properties on the request object (`query` and `params`) to populate a dynamic
-scope by using the '{' and '}' characters around the property name, such as `'user-{params.id}'`.
+You may also access properties on the request object (`query`, `params`, `payload`, and
+`credentials`) to populate a dynamic scope by using the '{' and '}' characters around the property
+name, such as `'user-{params.id}'`.
 
 ##### <a name="route.options.auth.access.entity" /> `entity`
 
@@ -3407,6 +3403,12 @@ the same. The following is the complete list of steps a request can go through:
 - _**Payload authentication**_
     - based on the route [`auth`](#route.options.auth) option.
 
+- _**onCredentials**_
+    - called only if authentication is performed.
+
+- _**Authorization**_
+    - based on the route authentication [`access`](#route.options.auth.access) option.
+
 - _**onPostAuth**_
     - called regardless if authentication is performed.
 
@@ -3516,7 +3518,7 @@ The return value must be one of:
       (auth scheme only).
 - a promise object that resolve to any of the above values
 
-Any error thrown by a lifecycel method will be used as the reponse object. While errors and valid
+Any error thrown by a lifecycle method will be used as the reponse object. While errors and valid
 values can be returned, it is recommended to throw errors. Throwing non-error values will generate
 a Bad Implementation (500) error response.
 
@@ -4273,6 +4275,10 @@ Authentication information:
 
 - `isAuthenticated` - `true` if the request has been successfully authenticated, otherwise `false`.
 
+- `isAuthorized` - `true` is the request has been successfully authorized against the route
+  authentication [`access`](#route.options.auth.access) configuration. If the route has not
+  access rules defined or if the request failed authorization, set to `false`.
+
 - `mode` - the route authentication mode.
 
 - `strategy` - the name of the strategy used.
@@ -4435,16 +4441,25 @@ The request route information object, where:
 - `realm` - the [active realm](#server.realm) associated with the route.
 - `settings` - the [route options](#route-options) object with all defaults applied.
 - `fingerprint` - the route internal normalized string representing the normalized path.
-- `auth` - route authentication utilities:
-    - `access(request)` - authenticates the passed `request` argument against the route's
-      authentication `access` configuration. Returns `true` if the `request` would have passed
-      the route's access requirements. Note that the route's authentication mode and strategies
-      are ignored. The only match is made between the `request.auth.credentials` scope
-      and entity information and the route `access` configuration. Also, if the route uses
-      dynamic scopes, the scopes are constructed against the `request.query` and `request.params`
-      which may or may not match between the route and the request's route. If this method is
-      called using a request that has not been authenticated (yet or at all), it will return
-      `false` if the route requires any authentication.
+
+##### <a name="request.route.auth.access()" /> `route.auth.access(request)`
+
+Validates a request against the route's authentication [`access`](#route.options.auth.access)
+configuration, where:
+
+- `request` - the [request object](#request).
+
+Return value: `true` if the `request` would have passed the route's access requirements.
+
+Note that the route's authentication mode and strategies are ignored. The only match is made
+between the `request.auth.credentials` scope and entity information and the route
+[`access`](#route.options.auth.access) configuration.
+
+If the route uses dynamic scopes, the scopes are constructed against the [`request.query`](#request.query),
+[`request.params`](#request.params), [`request.payload`](#request.payload), and
+[`request.auth.credentials`](#request.auth) which may or may not match between the route and the
+request's route. If this method is called using a request that has not been authenticated (yet or
+not at all), it will return `false` if the route requires any authentication.
 
 #### <a name="request.server" /> `server`
 
