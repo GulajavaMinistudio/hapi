@@ -53,7 +53,7 @@ describe('Response', () => {
         };
 
         const server = Hapi.server({ compression: { minBytes: 1 } });
-        server.route({ method: 'GET', path: '/', config: { handler, cache: { expiresIn: 9999 } } });
+        server.route({ method: 'GET', path: '/', options: { handler, cache: { expiresIn: 9999 } } });
         server.state('sid', { encoding: 'base64' });
         server.state('always', { autoValue: 'present' });
 
@@ -108,7 +108,7 @@ describe('Response', () => {
             expect(res.statusCode).to.equal(200);
             expect(res.headers['content-length']).to.equal(0);
             expect(res.headers['content-type']).to.not.exist();
-            expect(res.result).to.equal(null);
+            expect(res.result).to.equal('');
             expect(res.payload).to.equal('');
         });
 
@@ -126,6 +126,17 @@ describe('Response', () => {
             expect(res.headers['content-length']).to.equal(0);
             expect(res.result).to.equal(null);
             expect(res.payload).to.equal('');
+        });
+    });
+
+    describe('code()', () => {
+
+        it('sets manual code regardless of emptyStatusCode override', async () => {
+
+            const server = Hapi.server({ routes: { response: { emptyStatusCode: 204 } } });
+            server.route({ method: 'GET', path: '/', handler: (request, h) => h.response().code(200) });
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(200);
         });
     });
 
@@ -491,9 +502,9 @@ describe('Response', () => {
             expect(res.headers.xcustom).to.equal('some value');
         });
 
-        it('excludes connection header', async () => {
+        it('excludes connection header and connection options', async () => {
 
-            const upstreamConnectionHeader = 'some per-hop connection options';
+            const upstreamConnectionHeader = 'x-test, x-test-also';
 
             const TestStream = class extends Stream.Readable {
 
@@ -501,7 +512,11 @@ describe('Response', () => {
 
                     super();
                     this.statusCode = 200;
-                    this.headers = { connection: upstreamConnectionHeader };
+                    this.headers = {
+                        connection: upstreamConnectionHeader,
+                        'x-test': 'something',
+                        'x-test-also': 'also'
+                    };
                 }
 
                 _read(size) {
@@ -528,6 +543,8 @@ describe('Response', () => {
             expect(res.result).to.equal('x');
             expect(res.statusCode).to.equal(200);
             expect(res.headers.connection).to.not.equal(upstreamConnectionHeader);
+            expect(res.headers['x-test']).to.not.exist();
+            expect(res.headers['x-test-also']).to.not.exist();
         });
 
         it('excludes stream headers and code when passThrough is false', async () => {
@@ -1307,7 +1324,7 @@ describe('Response', () => {
         it('streams empty string', async () => {
 
             const server = Hapi.server({ compression: { minBytes: 1 } });
-            server.route({ method: 'GET', path: '/', config: { jsonp: 'callback', handler: () => '' } });
+            server.route({ method: 'GET', path: '/', options: { jsonp: 'callback', handler: () => '' } });
 
             const res = await server.inject({ url: '/?callback=me', headers: { 'Accept-Encoding': 'gzip' } });
             expect(res.statusCode).to.equal(200);
