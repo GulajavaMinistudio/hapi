@@ -243,7 +243,7 @@ describe('Core', () => {
             method: 'GET', path: '/', options: {
                 handler: async (request) => {
 
-                    await internals.wai(70);
+                    await Hoek.wait(70);
                     return 'too late';
                 }
             }
@@ -396,9 +396,9 @@ describe('Core', () => {
 
             const cache = {
                 engine: {
-                    start: function (callback) {
+                    start: function () {
 
-                        return callback(new Error('oops'));
+                        throw new Error('oops');
                     },
                     stop: function () { }
                 }
