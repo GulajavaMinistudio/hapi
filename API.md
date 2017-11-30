@@ -5,24 +5,24 @@
 - [Server](#server)
   - [`server([options])`](#server())
   - [Server options](#server.options)
-    - [`address`](#server.options.address)
-    - [`app`](#server.options.app)
-    - [`autoListen`](#server.options.autolisten)
-    - [`cache`](#server.options.cache)
-    - [`compression`](#server.options.compression)
-      - [`minBytes`](#server.options.compression.minBytes)
-    - [`debug`](#server.options.debug)
-    - [`host`](#server.options.host)
-    - [`listener`](#server.options.listener)
-    - [`load`](#server.options.load)
-    - [`mime`](#server.options.mime)
-    - [`plugins`](#server.options.plugins)
-    - [`port`](#server.options.port)
-    - [`router`](#server.options.router)
-    - [`routes`](#server.options.routes)
-    - [`state`](#server.options.state)
-    - [`tls`](#server.options.tls)
-    - [`uri`](#server.options.uri)
+    - [`server.options.address`](#server.options.address)
+    - [`server.options.app`](#server.options.app)
+    - [`server.options.autoListen`](#server.options.autolisten)
+    - [`server.options.cache`](#server.options.cache)
+    - [`server.options.compression`](#server.options.compression)
+      - [`server.options.compression.minBytes`](#server.options.compression.minBytes)
+    - [`server.options.debug`](#server.options.debug)
+    - [`server.options.host`](#server.options.host)
+    - [`server.options.listener`](#server.options.listener)
+    - [`server.options.load`](#server.options.load)
+    - [`server.options.mime`](#server.options.mime)
+    - [`server.options.plugins`](#server.options.plugins)
+    - [`server.options.port`](#server.options.port)
+    - [`server.options.router`](#server.options.router)
+    - [`server.options.routes`](#server.options.routes)
+    - [`server.options.state`](#server.options.state)
+    - [`server.options.tls`](#server.options.tls)
+    - [`server.options.uri`](#server.options.uri)
   - [Server properties](#server-properties)
     - [`server.app`](#server.app)
     - [`server.auth.api`](#server.auth.api)
@@ -95,14 +95,13 @@
 - [Route options](#route-options)
   - [`route.options.app`](#route.options.app)
   - [`route.options.auth`](#route.options.auth)
-    - [Authentication options](#authentication-options)
-      - [`route.options.access`](#route.options.auth.access)
-      - [`route.options.access.scope`](#route.options.auth.access.scope)
-      - [`route.options.access.entity`](#route.options.auth.access.entity)
-      - [`route.options.access.mode`](#route.options.auth.mode)
-      - [`route.options.access.payload`](#route.options.auth.payload)
-      - [`route.options.access.strategies`](#route.options.auth.strategies)
-      - [`route.options.access.strategy`](#route.options.auth.strategy)
+    - [`route.options.auth.access`](#route.options.auth.access)
+    - [`route.options.auth.access.scope`](#route.options.auth.access.scope)
+    - [`route.options.auth.access.entity`](#route.options.auth.access.entity)
+    - [`route.options.auth.mode`](#route.options.auth.mode)
+    - [`route.options.auth.payload`](#route.options.auth.payload)
+    - [`route.options.auth.strategies`](#route.options.auth.strategies)
+    - [`route.options.auth.strategy`](#route.options.auth.strategy)
   - [`route.options.bind`](#route.options.bind)
   - [`route.options.cache`](#route.options.cache)
   - [`route.options.compression`](#route.options.compression)
@@ -272,7 +271,7 @@ copied) and should not contain any values that are unsafe to perform deep copy o
 
 All options are optionals.
 
-#### <a name="server.options.address" /> `address`
+#### <a name="server.options.address" /> `server.options.address`
 
 Default value: `'0.0.0.0'` (all available network interfaces).
 
@@ -280,7 +279,7 @@ Sets the hostname or IP address the server will listen on. If not configured, de
 [`host`](#server.options.host) if present, otherwise to all available network interfaces. Set to
 `'127.0.0.1'` or `'localhost'` to restrict the server to only those coming from the same host.
 
-#### <a name="server.options.app" /> `app`
+#### <a name="server.options.app" /> `server.options.app`
 
 Default value: `{}`.
 
@@ -291,7 +290,7 @@ simply a reference made available anywhere a `server` reference is provided.
 Note the difference between `server.settings.app` which is used to store static configuration
 values and [`server.app`](#server.app) which is meant for storing run-time state.
 
-#### <a name="server.options.autolisten" /> `autoListen`
+#### <a name="server.options.autolisten" /> `server.options.autoListen`
 
 Default value: `true`.
 
@@ -301,7 +300,7 @@ the framework.
 
 Cannot be set to `true` along with a [`port`](#server.options.port) value.
 
-#### <a name="server.options.cache" /> `cache`
+#### <a name="server.options.cache" /> `server.options.cache`
 
 Default value: `{ engine: require('catbox-memory' }`.
 
@@ -339,21 +338,21 @@ assigned one or more (array):
       **catbox** when `engine` above is a class or function and ignored if `engine` is a **catbox**
       engine object).
 
-#### <a name="server.options.compression" /> `compression`
+#### <a name="server.options.compression" /> `server.options.compression`
 
 Default value: `{ minBytes: 1024 }`.
 
 Defines server handling of content encoding requests. If `false`, response content encoding is
 disabled and no compression is performed by the server.
 
-##### <a name="server.options.compression.minBytes" /> `minBytes`
+##### <a name="server.options.compression.minBytes" /> `server.options.compression.minBytes`
 
 Default value: '1024'.
 
 Sets the minimum response payload size in bytes that is required for content encoding compression.
 If the payload size is under the limit, no compression is performed.
 
-#### <a name="server.options.debug" /> `debug`
+#### <a name="server.options.debug" /> `server.options.debug`
 
 Default value: `{ request: ['implementation'] }`.
 
@@ -378,14 +377,14 @@ For example, to display all errors, set the `log` or `request` to `['error']`. T
 output set the `log` or `request` to `false`. To display all server logs, set the `log` or
 `request` to `'*'`. To disable all debug information, set `debug` to `false`.
 
-#### <a name="server.options.host" /> `host`
+#### <a name="server.options.host" /> `server.options.host`
 
 Default value: the operating system hostname and if not available, to `'localhost'`.
 
 The public hostname or IP address. Used to set [`server.info.host`](#server.info) and
 [`server.info.uri`](#server.info) and as [`address`](#server.options.address) is none provided.
 
-#### <a name="server.options.listener" /> `listener`
+#### <a name="server.options.listener" /> `server.options.listener`
 
 Default value: none.
 
@@ -397,7 +396,7 @@ If the `listener` needs to be manually started, set [`autoListen`](#server.optio
 
 If the `listener` uses TLS, set [`tls`](#server.options.tls) to `true`.
 
-#### <a name="server.options.load" /> `load`
+#### <a name="server.options.load" /> `server.options.load`
 
 Default value: `{ sampleInterval: 0 }`.
 
@@ -415,7 +414,7 @@ Server excessive load handling limits where:
 - `maxEventLoopDelay` - maximum event loop delay duration in milliseconds over which incoming
   requests are rejected with an HTTP Server Timeout (503) response. Defaults to `0` (no limit).
 
-#### <a name="server.options.mime" /> `mime`
+#### <a name="server.options.mime" /> `server.options.mime`
 
 Default value: none.
 
@@ -469,7 +468,7 @@ const options = {
 };
 ```
 
-#### <a name="server.options.plugins" /> `plugins`
+#### <a name="server.options.plugins" /> `server.options.plugins`
 
 Default value: `{}`.
 
@@ -479,7 +478,7 @@ Note the difference between [`server.settings.plugins`](#server.settings) which 
 static configuration values and [`server.plugins`](#server.plugins) which is meant for storing
 run-time state.
 
-#### <a name="server.options.port" /> `port`
+#### <a name="server.options.port" /> `server.options.port`
 
 Default value: `0` (an ephemeral port).
 
@@ -489,7 +488,7 @@ The TCP port the server will listen to. Defaults the next available port when th
 If `port` is a string containing a '/' character, it is used as a UNIX domain socket path.
 If it starts with '\\.\pipe', it is used as a Windows named pipe.
 
-#### <a name="server.options.router" /> `router`
+#### <a name="server.options.router" /> `server.options.router`
 
 Default value: `{ isCaseSensitive: true, stripTrailingSlash: false }`.
 
@@ -500,13 +499,13 @@ Controls how incoming request URIs are matched against the routing table:
 
 - `stripTrailingSlash` - removes trailing slashes on incoming paths. Defaults to `false`.
 
-#### <a name="server.options.routes" /> `routes`
+#### <a name="server.options.routes" /> `server.options.routes`
 
 Default value: none.
 
 A [route options](#route-options) object used as the default configuration for every route.
 
-#### <a name="server.options.state" /> `state`
+#### <a name="server.options.state" /> `server.options.state`
 
 Default value:
 ```js
@@ -524,7 +523,7 @@ Sets the default configuration for every state (cookie) set explicitly via
 [`server.state()`](#server.state()) or implicitly (without definition) using the
 [state configuration](#server.state()) object.
 
-#### <a name="server.options.tls" /> `tls`
+#### <a name="server.options.tls" /> `server.options.tls`
 
 Default value: none.
 
@@ -534,7 +533,7 @@ HTTPS server as described in the [node HTTPS documentation](http://nodejs.org/ap
 Set to `true` when passing a [`listener`](#server.options.listener) object that has been configured
 to use TLS directly.
 
-#### <a name="server.options.uri" /> `uri`
+#### <a name="server.options.uri" /> `server.options.uri`
 
 Default value: constructed from runtime server information.
 
@@ -2764,9 +2763,7 @@ Route authentication configuration. Value can be:
 
 - an [authentication configuration object](#authentication-options).
 
-#### Authentication options
-
-##### <a name="route.options.auth.access" /> `route.options.access`
+#### <a name="route.options.auth.access" /> `route.options.auth.access`
 
 Default value: none.
 
@@ -2775,7 +2772,7 @@ incoming request and access is granted if at least one of the rules matches. Eac
 include at least one of [`scope`](#route.options.auth.access.scope) or
 [`entity`](#route.options.auth.access.entity).
 
-##### <a name="route.options.auth.access.scope" /> `route.options.access.scope`
+#### <a name="route.options.auth.access.scope" /> `route.options.auth.access.scope`
 
 Default value: `false` (no scope requirements).
 
@@ -2792,7 +2789,7 @@ You may also access properties on the request object (`query`, `params`, `payloa
 `credentials`) to populate a dynamic scope by using the '{' and '}' characters around the property
 name, such as `'user-{params.id}'`.
 
-##### <a name="route.options.auth.access.entity" /> `route.options.access.entity`
+#### <a name="route.options.auth.access.entity" /> `route.options.auth.access.entity`
 
 Default value: `'any'`.
 
@@ -2806,7 +2803,7 @@ authenticated credentials. Available values:
   of presence of a `user` attribute in the `credentials` object returned by the authentication
   strategy.
 
-##### <a name="route.options.auth.mode" /> `route.options.access.mode`
+#### <a name="route.options.auth.mode" /> `route.options.auth.mode`
 
 Default value: `'required'`.
 
@@ -2818,7 +2815,7 @@ The authentication mode. Available values:
 - `'try'` - similar to `'optional'`, any request credentials are attempted authentication, but if
   the credentials are invalid, the request proceeds regardless of the authentication error.
 
-##### <a name="route.options.auth.payload" /> `route.options.access.payload`
+#### <a name="route.options.auth.payload" /> `route.options.auth.payload`
 
 Default value: `false`, unless the scheme requires payload authentication.
 
@@ -2834,14 +2831,14 @@ Available values:
 - `'optional'` - payload authentication performed only when the client includes payload
   authentication information (e.g. `hash` attribute in Hawk).
 
-##### <a name="route.options.auth.strategies" /> `route.options.access.strategies`
+#### <a name="route.options.auth.strategies" /> `route.options.auth.strategies`
 
 Default value: the default strategy set via [`server.auth.default()`](#server.auth.default()).
 
 An array of string strategy names in the order they should be attempted. Cannot be used together
 with [`strategy`](#route.options.auth.strategy).
 
-##### <a name="route.options.auth.strategy" /> `route.options.access.strategy`
+#### <a name="route.options.auth.strategy" /> `route.options.auth.strategy`
 
 Default value: the default strategy set via [`server.auth.default()`](#server.auth.default()).
 
@@ -4105,7 +4102,7 @@ request included expired credentials, it allows the method to pass back the user
 (combined with a `'try'` authentication [`mode`](#route.options.auth.mode)) for error customization.
 
 There is no difference between throwing the error or passing it with the `h.unauthenticated()`
-method is no credentials are passed, but it might still be helpful for code clarity.
+method if no credentials are passed, but it might still be helpful for code clarity.
 
 #### <a name="h.unstate()" /> `h.unstate(name, [options])`
 
