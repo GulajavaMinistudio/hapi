@@ -423,6 +423,8 @@ describe('Core', () => {
             server.ext('onPostStart', postStart);
 
             await expect(server.start()).to.reject('boom');
+            await server.stop();
+            expect(server.info.started).to.equal(0);
         });
 
         it('errors on bad cache start', async () => {
@@ -528,6 +530,23 @@ describe('Core', () => {
             const stopping = server.stop();
             await expect(server.stop()).to.reject('Cannot stop server while in stopping phase');
             await stopping;
+        });
+
+        it('errors on bad cache stop', async () => {
+
+            const cache = {
+                engine: {
+                    start: function () { },
+                    stop: function () {
+
+                        throw new Error('oops');
+                    }
+                }
+            };
+
+            const server = Hapi.server({ cache });
+            await server.start();
+            await expect(server.stop()).to.reject('oops');
         });
     });
 
