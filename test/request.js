@@ -263,6 +263,7 @@ describe('Request', () => {
                         if (this.isDone) {
                             return;
                         }
+
                         this.isDone = true;
 
                         this.push('success');
@@ -564,6 +565,51 @@ describe('Request', () => {
         });
     });
 
+    describe('_postCycle()', () => {
+
+        it('skips onPreResponse when validation terminates request', async () => {
+
+            const server = Hapi.server();
+            const team = new Teamwork();
+
+            let called = false;
+            server.ext('onPreResponse', (request, h) => {
+
+                called = true;
+                return h.continue;
+            });
+
+            server.route({
+                method: 'GET',
+                path: '/',
+                options: {
+                    handler: () => null,
+                    response: {
+                        status: {
+                            200: async () => {
+
+                                req.abort();
+                                await Hoek.wait(10);
+                                team.attend();
+                            }
+                        }
+                    }
+                }
+            });
+
+            await server.start();
+
+            const req = Http.get(server.info.uri, (res) => { });
+            req.on('error', Hoek.ignore);
+
+            await team.work;
+            await Hoek.wait(100);
+            await server.stop();
+
+            expect(called).to.be.false();
+        });
+    });
+
     describe('_reply()', () => {
 
         it('returns a reply with auto end in onPreResponse', async () => {
@@ -589,6 +635,8 @@ describe('Request', () => {
             await server.inject('/');
             const [request] = await log;
             expect(request.info.responded).to.be.min(request.info.received);
+            expect(request.response.source).to.equal('ok');
+            expect(request.response.statusCode).to.equal(200);
         });
 
         it('closes response after server timeout', async () => {
@@ -1484,6 +1532,7 @@ describe('Request', () => {
                         if (this.isDone) {
                             return;
                         }
+
                         this.isDone = true;
 
                         setTimeout(() => {
