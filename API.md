@@ -135,6 +135,7 @@
   - [`route.options.plugins`](#route.options.plugins)
   - [`route.options.pre`](#route.options.pre)
   - [`route.options.response`](#route.options.response)
+    - [`route.options.response.disconnectStatusCode`](#route.options.response.disconnectStatusCode)
     - [`route.options.response.emptyStatusCode`](#route.options.response.emptyStatusCode)
     - [`route.options.response.failAction`](#route.options.response.failAction)
     - [`route.options.response.modify`](#route.options.response.modify)
@@ -2108,14 +2109,19 @@ injections, with some additional options and response properties:
       an object it will be converted to a string for you. Defaults to no payload. Note that payload
       processing defaults to `'application/json'` if no 'Content-Type' header provided.
 
-    - `credentials` - (optional) an credentials object containing authentication information. The
-      `credentials` are used to bypass the default authentication strategies, and are validated
-      directly as if they were received via an authentication scheme. Defaults to no credentials.
+    - `auth` - (optional) an object containing parsed authentication credentials where:
 
-    - `artifacts` - (optional) an artifacts object containing authentication artifact information.
-      The `artifacts` are used to bypass the default authentication strategies, and are validated
-      directly as if they were received via an authentication scheme. Ignored if set without
-      `credentials`. Defaults to no artifacts.
+        - `strategy` - (required) the authentication strategy name matching the provided
+          credentials.
+
+        - `credentials` - (required) a credentials object containing authentication information.
+          The `credentials` are used to bypass the default authentication strategies, and are
+          validated directly as if they were received via an authentication scheme.
+
+        - `artifacts` - (optional) an artifacts object containing authentication artifact
+          information. The `artifacts` are used to bypass the default authentication strategies,
+          and are validated directly as if they were received via an authentication scheme.
+          Defaults to no artifacts.
 
     - `app` - (optional) sets the initial value of `request.app`, defaults to `{}`.
 
@@ -2269,7 +2275,9 @@ Registers a [server method](#server.methods) where:
 
 - `method` - the method function with a signature `async function(...args, [flags])` where:
     - `...args` - the method function arguments (can be any number of arguments or none).
-    - `flags` - when caching is enabled, an object used to set optional method result flags:
+    - `flags` - when caching is enabled, an object used to set optional method result flags. This
+      parameter is provided automatically and can only be accessed/modified within the method
+      function. It cannot be passed as an argument.
         - `ttl` - `0` if result is valid but cannot be cached. Defaults to cache policy.
 
 - `options` - (optional) configuration object:
@@ -3346,6 +3354,15 @@ server.route({
 ### <a name="route.options.response" /> `route.options.response`
 
 Processing rules for the outgoing response.
+
+#### <a name="route.options.response.disconnectStatusCode" /> `route.options.response.disconnectStatusCode`
+
+ Default value: `499`.
+
+The default HTTP status code used to set a response error when the request is closed or aborted
+before the response is fully transmitted. Value can be any integer greater or equal to `400`. The
+default value `499` is based on the non-standard nginx "CLIENT CLOSED REQUEST" error. The value is
+only used for logging as the request has already ended.
 
 #### <a name="route.options.response.emptyStatusCode" /> `route.options.response.emptyStatusCode`
 
@@ -4645,6 +4662,9 @@ Authentication information:
 - `isAuthorized` - `true` is the request has been successfully authorized against the route
   authentication [`access`](#route.options.auth.access) configuration. If the route has not
   access rules defined or if the request failed authorization, set to `false`.
+
+- `isInjected` - `true` if the request has been authenticated via the
+  [`server.inject()`](#server.inject()) `auth` option, otherwise `undefined`.
 
 - `mode` - the route authentication mode.
 
