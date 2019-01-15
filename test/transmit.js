@@ -1318,19 +1318,22 @@ describe('transmission', () => {
                 let count = 0;
                 stream._read = function (size) {
 
+                    const timeout = 10 * count++;           // Must have back off here to hit the socket timeout
+
                     setTimeout(() => {
 
                         if (request._isFinalized) {
                             stream.push(null);
+                            return;
                         }
-                        else {
-                            stream.push(new Array(size).join('x'));
-                        }
-                    }, 10 * (count++));       // Must have back off here to hit the socket timeout
+
+                        stream.push(new Array(size).join('x'));
+
+                    }, timeout);
                 };
 
-                stream.once('end', () => team.attend());
-
+                stream.once('error', () => team.attend());          // Node 8
+                stream.once('close', () => team.attend());          // Node 10
                 return stream;
             };
 
@@ -1340,6 +1343,8 @@ describe('transmission', () => {
 
             const res = await Wreck.request('GET', 'http://localhost:' + server.info.port);
             res.on('data', (chunk) => { });
+
+            await team.work;
             await server.stop();
         });
 
@@ -1868,6 +1873,41 @@ describe('transmission', () => {
 
             const res = await server.inject({ url: '/', headers: { 'accept-encoding': 'gzip' } });
             expect(res.statusCode).to.equal(500);
+        });
+    });
+
+    describe('end()', () => {
+
+        it('node v8 and v10 coverage', async () => {
+
+            const AbortStream = class extends Stream.Readable {
+
+                constructor(request) {
+
+                    super();
+                    this.request = request;
+                }
+
+                _read(size) {
+
+                    if (this.isDone) {
+                        return;
+                    }
+
+                    this.isDone = true;
+                    this.push('here is the response');
+                    this.push(null);
+
+                    this.request.raw.res.finished = true;
+                    this.request.raw.req.emit('close');
+                }
+            };
+
+            const server = Hapi.server();
+            server.route({ method: 'GET', path: '/', handler: (request, h) => new AbortStream(request) });
+
+            const res = await server.inject({ url: '/' });
+            expect(res.statusCode).to.equal(200);
         });
     });
 });
