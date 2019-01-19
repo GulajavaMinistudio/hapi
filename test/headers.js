@@ -6,6 +6,7 @@ const Code = require('code');
 const Hapi = require('..');
 const Inert = require('inert');
 const Lab = require('lab');
+const Wreck = require('wreck');
 
 
 const internals = {};
@@ -106,7 +107,7 @@ describe('Headers', () => {
 
         it('caches using non default cache', async () => {
 
-            const server = Hapi.server({ cache: { name: 'primary', engine: CatboxMemory } });
+            const server = Hapi.server({ cache: { name: 'primary', provider: CatboxMemory } });
             const defaults = server.cache({ segment: 'a', expiresIn: 2000, getDecoratedValue: true });
             const primary = server.cache({ segment: 'a', expiresIn: 2000, getDecoratedValue: true, cache: 'primary' });
 
@@ -510,6 +511,17 @@ describe('Headers', () => {
             const res = await server.inject('/');
             expect(res.statusCode).to.equal(200);
             expect(res.headers['content-type']).to.equal('text/html');
+        });
+
+        it('returns a normal response when JSONP requested but stream returned', async () => {
+
+            const server = Hapi.server();
+            const stream = Wreck.toReadableStream('test');
+            stream.size = 4;                                    // Non function for coverage
+            server.route({ method: 'GET', path: '/', options: { jsonp: 'callback', handler: () => stream } });
+
+            const res = await server.inject('/?callback=me');
+            expect(res.payload).to.equal('test');
         });
     });
 });
