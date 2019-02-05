@@ -780,8 +780,8 @@ describe('Core', () => {
             expect(count1).to.equal(2);
 
             const timer = new Hoek.Bench();
-            await server.stop({ timeout: 20 });
-            expect(timer.elapsed()).to.be.at.most(21);
+            await server.stop({ timeout: 100 });
+            expect(timer.elapsed()).to.be.at.most(110);
         });
 
         it('waits to destroy handled connections until after the timeout', async () => {
@@ -815,11 +815,11 @@ describe('Core', () => {
             const count1 = await internals.countConnections(server);
             expect(count1).to.equal(1);
 
-            setTimeout(() => socket.end(), 10);
+            setTimeout(() => socket.end(), 50);
 
             const timer = new Hoek.Bench();
             await server.stop({ timeout: 200 });
-            expect(timer.elapsed()).to.be.below(25);
+            expect(timer.elapsed()).to.be.below(150);
         });
 
         it('immediately destroys idle keep-alive connections', async () => {
