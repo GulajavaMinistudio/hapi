@@ -1,6 +1,6 @@
-### Web and services application framework
+<img src="https://github.com/hapijs/assets/blob/master/images/hapi.png" width="400px" />
 
-Lead Maintainer: [Eran Hammer](https://github.com/hueniverse)
+### Web and services application framework
 
 Enterprise support plans and commercial licensing are available. Please check the
 [Version Support Schedule](https://github.com/hapijs/hapi/blob/master/SUPPORT.md) for more information.
