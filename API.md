@@ -1,4 +1,4 @@
-# v18.1.x API Reference
+# v18.3.x API Reference
 
 <!-- toc -->
 
@@ -16,6 +16,7 @@
     - [`server.options.listener`](#server.options.listener)
     - [`server.options.load`](#server.options.load)
     - [`server.options.mime`](#server.options.mime)
+    - [`server.options.operations`](#server.options.operations)
     - [`server.options.plugins`](#server.options.plugins)
     - [`server.options.port`](#server.options.port)
     - [`server.options.query`](#server.options.query)
@@ -487,6 +488,19 @@ const options = {
     }
 };
 ```
+
+#### <a name="server.options.operations" /> `server.options.operations`
+
+Default value: `{ cleanStop: true }`.
+
+Defines server handling of server operations:
+
+- `cleanStop` - if `true`, the server keeps track of open connections and properly closes them
+  when the server is stopped. Under normal load, this should not interfere with server performance.
+  However, under severe load connection monitoring can consume additional resources and aggravate
+  the situation. If the server is never stopped, or if it is forced to stop without waiting for
+  open connection to close, setting this to `false` can save resources that are not being utilized
+  anyway. Defaults to `true`.
 
 #### <a name="server.options.plugins" /> `server.options.plugins`
 
@@ -2009,6 +2023,9 @@ points where:
           configuring route-level extensions, or when adding server extensions. Defaults to
           `'server'` which applies to any route added to the server the extension is added to.
 
+        - `timeout` - number of milliseconds to wait for the `method` to complete before returning
+          a timeout error. Defaults to no timeout.
+
 Return value: none.
 
 ```js
@@ -2823,8 +2840,14 @@ connections will continue until closed or timeout), where:
 
 - `options` - (optional) object with:
 
-    - `timeout` - overrides the timeout in millisecond before forcefully terminating a connection.
-      Defaults to `5000` (5 seconds).
+    - `timeout` - sets the timeout in millisecond before forcefully terminating any open
+      connections that arrived before the server stopped accepting new connections. The timeout
+      only applies to waiting for existing connections to close, and not to any
+      [`'onPreStop'` or `'onPostStop'` server extensions](#server.ext.args()) which can
+      delay or block the stop operation indefinitely. Ignored if
+      [`server.options.operations.cleanStop`](#server.options.operations) is `false`. Note that if
+      the server is set as a [group controller](#server.control()), the timeout is per controlled
+      server and the controlling server itself. Defaults to `5000` (5 seconds).
 
 Return value: none.
 
