@@ -1036,7 +1036,7 @@ describe('Core', () => {
             };
 
             const res = await server.inject(options);
-            expect(res.statusCode).to.equal(200);
+            expect(res.statusCode).to.equal(204);
             expect(options.auth.credentials).to.exist();
         });
 
@@ -1057,7 +1057,7 @@ describe('Core', () => {
             };
 
             const res = await server.inject(options);
-            expect(res.statusCode).to.equal(200);
+            expect(res.statusCode).to.equal(204);
             expect(options.auth.credentials).to.exist();
         });
 
@@ -1184,7 +1184,7 @@ describe('Core', () => {
             server.route({ method: 'GET', path: '/', handler });
 
             const res = await server.inject('/');
-            expect(res.statusCode).to.equal(200);
+            expect(res.statusCode).to.equal(204);
             expect(res.request.app.key).to.equal('value');
         });
 
@@ -1944,54 +1944,6 @@ describe('Core', () => {
             expect(server.load.heapUsed).to.be.above(1024 * 1024);
             expect(server.load.rss).to.be.above(1024 * 1024);
             await server.stop();
-        });
-
-        it('bypasses queue when disabled', () => {
-
-            const server = Hapi.server({ load: { concurrent: 0 } });
-
-            const handler = async () => {
-
-                await Hoek.wait(100);
-                return null;
-            };
-
-            server.route({ method: 'GET', path: '/', handler });
-            server.inject('/');
-            expect(server._core.queue.active).to.equal(0);
-        });
-
-        it('bypasses queue when disabled (default)', () => {
-
-            const server = Hapi.server();
-
-            const handler = async () => {
-
-                await Hoek.wait(100);
-                return null;
-            };
-
-            server.route({ method: 'GET', path: '/', handler });
-            server.inject('/');
-            expect(server._core.queue.active).to.equal(0);
-        });
-
-        it('queues requests', () => {
-
-            const server = Hapi.server({ load: { concurrent: 10 } });
-
-            const handler = async () => {
-
-                await Hoek.wait(100);
-                return null;
-            };
-
-            server.route({ method: 'GET', path: '/', handler });
-            for (let i = 0; i < 15; ++i) {
-                server.inject('/');
-            }
-
-            expect(server._core.queue.active).to.equal(10);
         });
     });
 });
