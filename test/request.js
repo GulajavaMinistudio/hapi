@@ -111,7 +111,13 @@ describe('Request', () => {
             }
 
             expect(request.info.remoteAddress).to.equal(expectedClientAddress);
-            expect(request.info.remoteAddress).to.equal(request.info.remoteAddress);
+            expect(request.info.remotePort).to.be.above(0);
+
+            // Call twice to reuse cached values
+
+            expect(request.info.remoteAddress).to.equal(expectedClientAddress);
+            expect(request.info.remotePort).to.be.above(0);
+
             return 'ok';
         };
 
@@ -122,6 +128,14 @@ describe('Request', () => {
         const { payload } = await Wreck.get('http://localhost:' + server.info.port);
         expect(payload.toString()).to.equal('ok');
         await server.stop();
+    });
+
+    it('sets port to nothing when not available', async () => {
+
+        const server = Hapi.server({ debug: false });
+        server.route({ method: 'GET', path: '/', handler: (request) => request.info.remotePort === '' });
+        const res = await server.inject('/');
+        expect(res.result).to.equal(true);
     });
 
     it('sets referrer', async () => {
@@ -1271,6 +1285,140 @@ describe('Request', () => {
             expect(res.statusCode).to.equal(200);
             expect(res.result).to.equal({ p: '/path', path: '//path', hostname: server.info.host.toLowerCase() });
         });
+
+        it('handles escaped path segments', async () => {
+
+            const server = Hapi.server();
+            server.route({ path: '/%2F/%2F', method: 'GET', handler: (request) => request.path });
+
+            const tests = [
+                ['/', 404],
+                ['////', 404],
+                ['/%2F/%2F', 200, '/%2F/%2F'],
+                ['/%2F/%2F#x', 200, '/%2F/%2F'],
+                ['/%2F/%2F?a=1#x', 200, '/%2F/%2F']
+            ];
+
+            for (const [uri, code, result] of tests) {
+                const res = await server.inject(uri);
+                expect(res.statusCode).to.equal(code);
+
+                if (code < 400) {
+                    expect(res.result).to.equal(result);
+                }
+            }
+        });
+
+        it('handles fragments (no query)', async () => {
+
+            const server = Hapi.server();
+            server.route({ method: 'GET', path: '/{p*}', handler: (request) => request.path });
+
+            await server.start();
+
+            const options = {
+                hostname: 'localhost',
+                port: server.info.port,
+                path: '/path#ignore',
+                method: 'GET'
+            };
+
+            const team = new Teamwork();
+            const req = Http.request(options, (res) => team.attend(res));
+            req.end();
+
+            const res = await team.work;
+            const payload = await Wreck.read(res);
+            expect(payload.toString()).to.equal('/path');
+
+            await server.stop();
+        });
+
+        it('handles fragments (with query)', async () => {
+
+            const server = Hapi.server();
+            server.route({ method: 'GET', path: '/{p*}', handler: (request) => request.query.a });
+
+            await server.start();
+
+            const options = {
+                hostname: 'localhost',
+                port: server.info.port,
+                path: '/path?a=1#ignore',
+                method: 'GET'
+            };
+
+            const team = new Teamwork();
+            const req = Http.request(options, (res) => team.attend(res));
+            req.end();
+
+            const res = await team.work;
+            const payload = await Wreck.read(res);
+            expect(payload.toString()).to.equal('1');
+
+            await server.stop();
+        });
+
+        it('handles absolute URL (proxy)', async () => {
+
+            const server = Hapi.server();
+            server.route({ method: 'GET', path: '/{p*}', handler: (request) => request.query.a.join() });
+
+            await server.start();
+
+            const options = {
+                hostname: 'localhost',
+                port: server.info.port,
+                path: 'http://example.com/path?a=1&a=2#ignore',
+                method: 'GET'
+            };
+
+            const team = new Teamwork();
+            const req = Http.request(options, (res) => team.attend(res));
+            req.end();
+
+            const res = await team.work;
+            const payload = await Wreck.read(res);
+            expect(payload.toString()).to.equal('1,2');
+
+            await server.stop();
+        });
+    });
+
+    describe('url', () => {
+
+        it('generates URL object lazily', async () => {
+
+            const server = Hapi.server();
+
+            const handler = (request) => {
+
+                expect(request._url).to.not.exist();
+                return request.url.pathname;
+            };
+
+            server.route({ path: '/test', method: 'GET', handler });
+            const res = await server.inject('/test?a=1');
+            expect(res.statusCode).to.equal(200);
+            expect(res.result).to.equal('/test');
+        });
+
+        it('generates URL object lazily (no host header)', async () => {
+
+            const server = Hapi.server();
+
+            const handler = (request) => {
+
+                delete request.info.host;
+                expect(request._url).to.not.exist();
+                return request.url.pathname;
+            };
+
+            server.route({ path: '/test', method: 'GET', handler });
+            const res = await server.inject('/test?a=1');
+            expect(res.statusCode).to.equal(200);
+            expect(res.result).to.equal('/test');
+        });
     });
 
     describe('_tap()', () => {
@@ -1850,6 +1998,7 @@ describe('Request', () => {
         it('returns a logged bad request error when parser fails after request is setup', async () => {
 
             const server = Hapi.server({ routes: { timeout: { server: false } } });
+            server.route({ path: '/', method: 'GET', handler: Hoek.block });
             await server.start();
 
             const log = server.events.once('response');
@@ -1871,6 +2020,34 @@ describe('Request', () => {
 
             const [request] = await log;
             expect(request.response.statusCode).to.equal(400);
+            const clientResponse = await clientEnded;
+            expect(clientResponse).to.contain('400 Bad Request');
+
+            await server.stop({ timeout: 1 });
+        });
+
+        it('returns a logged bad request error when parser fails after request is setup (cleanStop false)', async () => {
+
+            const server = Hapi.server({ routes: { timeout: { server: false } }, operations: { cleanStop: false } });
+            server.route({ path: '/', method: 'GET', handler: Hoek.block });
+            await server.start();
+
+            const client = Net.connect(server.info.port);
+            const clientEnded = new Promise((resolve, reject) => {
+
+                let response = '';
+                client.on('data', (chunk) => {
+
+                    response = response + chunk.toString();
+                });
+
+                client.on('end', () => resolve(response));
+                client.on('error', reject);
+            });
+
+            await new Promise((resolve) => client.on('connect', resolve));
+            client.write('GET / HTTP/1.1\nHost: test\nContent-Length: 0\n\n\ninvalid data');
+
             const clientResponse = await clientEnded;
             expect(clientResponse).to.contain('400 Bad Request');
 
