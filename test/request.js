@@ -95,6 +95,28 @@ describe('Request.Generator', () => {
         expect(res.statusCode).to.equal(200);
         expect(res.result).to.equal(['x2']);
     });
+
+    it('decorates symbols when apply=true', async () => {
+
+        const server = Hapi.server();
+        const symbol = Symbol('abc');
+
+        server.decorate('request', symbol, () => 'foo', { apply: true });
+
+        server.route({
+            method: 'GET',
+            path: '/',
+            handler: (request) => {
+
+                return request[symbol];
+            }
+        });
+
+        const res = await server.inject('/');
+        expect(res.statusCode).to.equal(200);
+        expect(res.result).to.equal('foo');
+
+    });
 });
 
 describe('Request', () => {
@@ -222,7 +244,7 @@ describe('Request', () => {
 
     describe('active()', () => {
 
-        it('exits handler early when request is no longer active', async () => {
+        it('exits handler early when request is no longer active', { retry: true }, async () => {
 
             const server = Hapi.server();
             const team = new Teamwork();
@@ -804,6 +826,9 @@ describe('Request', () => {
                 path: '/',
                 options: {
                     handler: () => ({ a: '1' }),
+                    validate: {
+                        validator: Joi
+                    },
                     response: {
                         failAction: (request, h) => h.continue,
                         schema: {
@@ -1355,6 +1380,31 @@ describe('Request', () => {
             const res = await team.work;
             const payload = await Wreck.read(res);
             expect(payload.toString()).to.equal('1');
+
+            await server.stop();
+        });
+
+        it('handles fragments with ? (no query)', async () => {
+
+            const server = Hapi.server();
+            server.route({ method: 'GET', path: '/{p*}', handler: (request) => request.path });
+
+            await server.start();
+
+            const options = {
+                hostname: 'localhost',
+                port: server.info.port,
+                path: '/path#ignore?x',
+                method: 'GET'
+            };
+
+            const team = new Teamwork();
+            const req = Http.request(options, (res) => team.attend(res));
+            req.end();
+
+            const res = await team.work;
+            const payload = await Wreck.read(res);
+            expect(payload.toString()).to.equal('/path');
 
             await server.stop();
         });
