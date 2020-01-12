@@ -242,12 +242,43 @@ describe('Request', () => {
         expect(res3.result).to.match(/10$/);
     });
 
+    it('can serialize request.info with JSON.stringify()', async () => {
+
+        const server = Hapi.server();
+
+        const handler = (request) => {
+
+            const actual = JSON.stringify(request.info);
+            const expected = JSON.stringify({
+                acceptEncoding: request.info.acceptEncoding,
+                completed: request.info.completed,
+                cors: request.info.cors,
+                host: request.info.host,
+                hostname: request.info.hostname,
+                id: request.info.id,
+                received: request.info.received,
+                referrer: request.info.referrer,
+                remoteAddress: request.info.remoteAddress,
+                remotePort: request.info.remotePort,
+                responded: request.info.responded
+            });
+
+            expect(actual).to.equal(expected);
+            return 'ok';
+        };
+
+        server.route({ method: 'GET', path: '/', handler });
+
+        const res = await server.inject({ url: '/' });
+        expect(res.result).to.equal('ok');
+    });
+
     describe('active()', () => {
 
         it('exits handler early when request is no longer active', { retry: true }, async () => {
 
             const server = Hapi.server();
-            const team = new Teamwork();
+            const team = new Teamwork.Team();
 
             let rounds = 0;
             server.route({
@@ -442,7 +473,7 @@ describe('Request', () => {
                 handler: () => null
             });
 
-            const team = new Teamwork();
+            const team = new Teamwork.Team();
             const onRequest = (request, h) => {
 
                 request.events.once('disconnect', () => team.attend());
@@ -498,7 +529,7 @@ describe('Request', () => {
         it('does not fail on abort', async () => {
 
             const server = Hapi.server();
-            const team = new Teamwork();
+            const team = new Teamwork.Team();
 
             const handler = async (request) => {
 
@@ -528,7 +559,7 @@ describe('Request', () => {
         it('does not fail on abort (onPreHandler)', async () => {
 
             const server = Hapi.server();
-            const team = new Teamwork();
+            const team = new Teamwork.Team();
 
             server.route({ method: 'GET', path: '/', handler: () => null });
 
@@ -779,7 +810,7 @@ describe('Request', () => {
         it('skips onPreResponse when validation terminates request', async () => {
 
             const server = Hapi.server();
-            const team = new Teamwork();
+            const team = new Teamwork.Team();
 
             let called = false;
             server.ext('onPreResponse', (request, h) => {
@@ -892,7 +923,7 @@ describe('Request', () => {
 
         it('closes response after server timeout', async () => {
 
-            const team = new Teamwork();
+            const team = new Teamwork.Team();
             const handler = async (request) => {
 
                 await Hoek.wait(100);
@@ -1069,6 +1100,23 @@ describe('Request', () => {
 
             const res = await server.inject('/');
             expect(res.payload).to.equal(url + '|/page|something');
+        });
+
+        it('sets root url', async () => {
+
+            const server = Hapi.server();
+            server.route({ method: 'GET', path: '/', handler: (request) => request.url.pathname });
+
+            const onRequest = (request, h) => {
+
+                request.setUrl('/');
+                return h.continue;
+            };
+
+            server.ext('onRequest', onRequest);
+
+            const res = await server.inject('/a/b/c');
+            expect(res.result).to.equal('/');
         });
 
         it('updates host info', async () => {
@@ -1348,7 +1396,7 @@ describe('Request', () => {
                 method: 'GET'
             };
 
-            const team = new Teamwork();
+            const team = new Teamwork.Team();
             const req = Http.request(options, (res) => team.attend(res));
             req.end();
 
@@ -1373,7 +1421,7 @@ describe('Request', () => {
                 method: 'GET'
             };
 
-            const team = new Teamwork();
+            const team = new Teamwork.Team();
             const req = Http.request(options, (res) => team.attend(res));
             req.end();
 
@@ -1398,7 +1446,7 @@ describe('Request', () => {
                 method: 'GET'
             };
 
-            const team = new Teamwork();
+            const team = new Teamwork.Team();
             const req = Http.request(options, (res) => team.attend(res));
             req.end();
 
@@ -1423,7 +1471,7 @@ describe('Request', () => {
                 method: 'GET'
             };
 
-            const team = new Teamwork();
+            const team = new Teamwork.Team();
             const req = Http.request(options, (res) => team.attend(res));
             req.end();
 

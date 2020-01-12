@@ -1,261 +1,3 @@
-# v18.4.x API Reference
-
-<!-- toc -->
-
-- [Server](#server)
-  - [`server([options])`](#server())
-  - [Server options](#server.options)
-    - [`server.options.address`](#server.options.address)
-    - [`server.options.app`](#server.options.app)
-    - [`server.options.autoListen`](#server.options.autolisten)
-    - [`server.options.cache`](#server.options.cache)
-    - [`server.options.compression`](#server.options.compression)
-      - [`server.options.compression.minBytes`](#server.options.compression.minBytes)
-    - [`server.options.debug`](#server.options.debug)
-    - [`server.options.host`](#server.options.host)
-    - [`server.options.listener`](#server.options.listener)
-    - [`server.options.load`](#server.options.load)
-    - [`server.options.mime`](#server.options.mime)
-    - [`server.options.operations`](#server.options.operations)
-    - [`server.options.plugins`](#server.options.plugins)
-    - [`server.options.port`](#server.options.port)
-    - [`server.options.query`](#server.options.query)
-      - [`server.options.query.parser`](#server.options.query.parser)
-    - [`server.options.router`](#server.options.router)
-    - [`server.options.routes`](#server.options.routes)
-    - [`server.options.state`](#server.options.state)
-    - [`server.options.tls`](#server.options.tls)
-    - [`server.options.uri`](#server.options.uri)
-  - [Server properties](#server-properties)
-    - [`server.app`](#server.app)
-    - [`server.auth.api`](#server.auth.api)
-    - [`server.auth.settings.default`](#server.auth.settings.default)
-    - [`server.decorations`](#server.decorations)
-    - [`server.events`](#server.events)
-      - [`'log'` Event](#server.events.log)
-      - [`'request'` Event](#server.events.request)
-      - [`'response'` Event](#server.events.response)
-      - [`'route'` Event](#server.events.route)
-      - [`'start'` Event](#server.events.start)
-      - [`'stop'` Event](#server.events.stop)
-    - [`server.info`](#server.info)
-    - [`server.listener`](#server.listener)
-    - [`server.load`](#server.load)
-    - [`server.methods`](#server.methods)
-    - [`server.mime`](#server.mime)
-    - [`server.plugins`](#server.plugins)
-    - [`server.realm`](#server.realm)
-    - [`server.registrations`](#server.registrations)
-    - [`server.settings`](#server.settings)
-    - [`server.states`](#server.states)
-    - [`server.states.settings`](#server.states.settings)
-    - [`server.states.cookies`](#server.states.cookies)
-    - [`server.states.names`](#server.states.names)
-    - [`server.type`](#server.type)
-    - [`server.version`](#server.version)
-  - [`server.auth.default(options)`](#server.auth.default())
-  - [`server.auth.scheme(name, scheme)`](#server.auth.scheme())
-    - [Authentication scheme](#authentication-scheme)
-  - [`server.auth.strategy(name, scheme, [options])`](#server.auth.strategy())
-  - [`await server.auth.test(strategy, request)`](#server.auth.test())
-  - [`await server.auth.verify(request)`](#server.auth.verify())
-  - [`server.bind(context)`](#server.bind())
-  - [`server.cache(options)`](#server.cache())
-  - [`await server.cache.provision(options)`](#server.cache.provision())
-  - [`server.control(server)`](#server.control())
-  - [`server.decoder(encoding, decoder)`](#server.decoder())
-  - [`server.decorate(type, property, method, [options])`](#server.decorate())
-  - [`server.dependency(dependencies, [after])`](#server.dependency())
-  - [`server.encoder(encoding, encoder)`](#server.encoder())
-  - [`server.event(events)`](#server.event())
-  - [`await server.events.emit(criteria, data)`](#server.events.emit())
-  - [`server.events.on(criteria, listener)`](#server.events.on())
-  - [`server.events.once(criteria, listener)`](#server.events.once())
-  - [`await server.events.once(criteria)`](#server.events.once.await())
-  - [`server.expose(key, value)`](#server.expose())
-  - [`server.expose(obj)`](#server.expose.obj())
-  - [`server.ext(events)`](#server.ext())
-  - [`server.ext(event, method, [options])`](#server.ext.args())
-  - [`await server.initialize()`](#server.initialize())
-  - [`await server.inject(options)`](#server.inject())
-  - [`server.log(tags, [data, [timestamp]])`](#server.log())
-  - [`server.lookup(id)`](#server.lookup())
-  - [`server.match(method, path, [host])`](#server.match())
-  - [`server.method(name, method, [options])`](#server.method())
-  - [`server.method(methods)`](#server.method.array())
-  - [`server.path(relativeTo)`](#server.path())
-  - [`await server.register(plugins, [options])`](#server.register())
-  - [`server.route(route)`](#server.route())
-    - [Path parameters](#path-parameters)
-    - [Path matching order](#path-matching-order)
-    - [Catch all route](#catch-all-route)
-  - [`server.rules(processor, [options])`](#server.rules())
-  - [`await server.start()`](#server.start())
-  - [`server.state(name, [options])`](#server.state())
-  - [`server.states.add(name, [options])`](#server.states.add())
-  - [`await server.states.format(cookies)`](#server.states.format())
-  - [`await server.states.parse(header)`](#server.states.parse())
-  - [`await server.stop([options])`](#server.stop())
-  - [`server.table([host])`](#server.table())
-  - [`server.validator(validator)`](#server.validator())
-- [Route options](#route-options)
-  - [`route.options.app`](#route.options.app)
-  - [`route.options.auth`](#route.options.auth)
-    - [`route.options.auth.access`](#route.options.auth.access)
-    - [`route.options.auth.access.scope`](#route.options.auth.access.scope)
-    - [`route.options.auth.access.entity`](#route.options.auth.access.entity)
-    - [`route.options.auth.mode`](#route.options.auth.mode)
-    - [`route.options.auth.payload`](#route.options.auth.payload)
-    - [`route.options.auth.strategies`](#route.options.auth.strategies)
-    - [`route.options.auth.strategy`](#route.options.auth.strategy)
-  - [`route.options.bind`](#route.options.bind)
-  - [`route.options.cache`](#route.options.cache)
-  - [`route.options.compression`](#route.options.compression)
-  - [`route.options.cors`](#route.options.cors)
-  - [`route.options.description`](#route.options.description)
-  - [`route.options.ext`](#route.options.ext)
-  - [`route.options.files`](#route.options.files)
-  - [`route.options.handler`](#route.options.handler)
-  - [`route.options.id`](#route.options.id)
-  - [`route.options.isInternal`](#route.options.isInternal)
-  - [`route.options.json`](#route.options.json)
-  - [`route.options.jsonp`](#route.options.jsonp)
-  - [`route.options.log`](#route.options.log)
-  - [`route.options.notes`](#route.options.notes)
-  - [`route.options.payload`](#route.options.payload)
-    - [`route.options.payload.allow`](#route.options.payload.allow)
-    - [`route.options.payload.compression`](#route.options.payload.compression)
-    - [`route.options.payload.defaultContentType`](#route.options.payload.defaultContentType)
-    - [`route.options.payload.failAction`](#route.options.payload.failAction)
-    - [`route.options.payload.maxBytes`](#route.options.payload.maxBytes)
-    - [`route.options.payload.multipart`](#route.options.payload.multipart)
-    - [`route.options.payload.output`](#route.options.payload.output)
-    - [`route.options.payload.override`](#route.options.payload.override)
-    - [`route.options.payload.parse`](#route.options.payload.parse)
-    - [`route.options.payload.protoAction`](#route.options.payload.protoAction)
-    - [`route.options.payload.timeout`](#route.options.payload.timeout)
-    - [`route.options.payload.uploads`](#route.options.payload.uploads)
-  - [`route.options.plugins`](#route.options.plugins)
-  - [`route.options.pre`](#route.options.pre)
-  - [`route.options.response`](#route.options.response)
-    - [`route.options.response.disconnectStatusCode`](#route.options.response.disconnectStatusCode)
-    - [`route.options.response.emptyStatusCode`](#route.options.response.emptyStatusCode)
-    - [`route.options.response.failAction`](#route.options.response.failAction)
-    - [`route.options.response.modify`](#route.options.response.modify)
-    - [`route.options.response.options`](#route.options.response.options)
-    - [`route.options.response.ranges`](#route.options.response.ranges)
-    - [`route.options.response.sample`](#route.options.response.sample)
-    - [`route.options.response.schema`](#route.options.response.schema)
-    - [`route.options.response.status`](#route.options.response.status)
-  - [`route.options.rules`](#route.options.rules)
-  - [`route.options.security`](#route.options.security)
-  - [`route.options.state`](#route.options.state)
-  - [`route.options.tags`](#route.options.tags)
-  - [`route.options.timeout`](#route.options.timeout)
-    - [`route.options.timeout.server`](#route.options.timeout.server)
-    - [`route.options.timeout.socket`](#route.options.timeout.socket)
-  - [`route.options.validate`](#route.options.validate)
-    - [`route.options.validate.errorFields`](#route.options.validate.errorFields)
-    - [`route.options.validate.failAction`](#route.options.validate.failAction)
-    - [`route.options.validate.headers`](#route.options.validate.headers)
-    - [`route.options.validate.options`](#route.options.validate.options)
-    - [`route.options.validate.params`](#route.options.validate.params)
-    - [`route.options.validate.payload`](#route.options.validate.payload)
-    - [`route.options.validate.query`](#route.options.validate.query)
-    - [`route.options.validate.state`](#route.options.validate.state)
-- [Request lifecycle](#request-lifecycle)
-  - [Lifecycle methods](#lifecycle-methods)
-    - [Lifecycle workflow](#lifecycle-workflow)
-    - [Takeover response](#takeover-response)
-    - [`failAction` configuration](#lifecycle-failAction)
-    - [Errors](#errors)
-      - [Error transformation](#error-transformation)
-  - [Response Toolkit](#response-toolkit)
-    - [Toolkit properties](#toolkit-properties)
-      - [`h.abandon`](#h.abandon)
-      - [`h.close`](#h.close)
-      - [`h.context`](#h.context)
-      - [`h.continue`](#h.continue)
-      - [`h.realm`](#h.realm)
-      - [`h.request`](#h.request)
-    - [`h.authenticated(data)`](#h.authenticated())
-    - [`h.entity(options)`](#h.entity())
-    - [`h.redirect(uri)`](#h.redirect())
-    - [`h.response([value])`](#h.response())
-    - [`h.state(name, value, [options])`](#h.state())
-    - [`h.unauthenticated(error, [data])`](#h.unauthenticated())
-    - [`h.unstate(name, [options])`](#h.unstate())
-  - [Response object](#response-object)
-    - [Response properties](#response-properties)
-      - [`response.app`](#response.app)
-      - [`response.events`](#response.events)
-      - [`response.headers`](#response.headers)
-      - [`response.plugins`](#response.plugins)
-      - [`response.settings`](#response.settings)
-        - [`response.settings.passThrough`](#response.settings.passThrough)
-        - [`response.settings.stringify`](#response.settings.stringify)
-        - [`response.settings.ttl`](#response.settings.ttl)
-        - [`response.settings.varyEtag`](#response.settings.varyEtag)
-      - [`response.source`](#response.source)
-      - [`response.statusCode`](#response.statusCode)
-      - [`response.variety`](#response.variety)
-    - [`response.bytes(length)`](#response.bytes())
-    - [`response.charset(charset)`](#response.charset())
-    - [`response.code(statusCode)`](#response.code())
-    - [`response.message(httpMessage)`](#response.message())
-    - [`response.compressed(encoding)`](#response.compressed())
-    - [`response.created(uri)`](#response.created())
-    - [`response.encoding(encoding)`](#response.encoding())
-    - [`response.etag(tag, options)`](#response.etag())
-    - [`response.header(name, value, options)`](#response.header())
-    - [`response.location(uri)`](#response.location())
-    - [`response.redirect(uri)`](#response.redirect())
-    - [`response.replacer(method)`](#response.replacer())
-    - [`response.spaces(count)`](#response.spaces())
-    - [`response.state(name, value, [options])`](#response.state())
-    - [`response.suffix(suffix)`](#response.suffix())
-    - [`response.ttl(msec)`](#response.ttl())
-    - [`response.type(mimeType)`](#response.type())
-    - [`response.unstate(name, [options])`](#response.unstate())
-    - [`response.vary(header)`](#response.vary())
-    - [`response.takeover()`](#response.takeover())
-    - [`response.temporary(isTemporary)`](#response.temporary())
-    - [`response.permanent(isPermanent)`](#response.permanent())
-    - [`response.rewritable(isRewritable)`](#response.rewritable())
-- [Request](#request)
-  - [Request properties](#request-properties)
-    - [`request.app`](#request.app)
-    - [`request.auth`](#request.auth)
-    - [`request.events`](#request.events)
-    - [`request.headers`](#request.headers)
-    - [`request.info`](#request.info)
-    - [`request.logs`](#request.logs)
-    - [`request.method`](#request.method)
-    - [`request.mime`](#request.mime)
-    - [`request.orig`](#request.orig)
-    - [`request.params`](#request.params)
-    - [`request.paramsArray`](#request.paramsArray)
-    - [`request.path`](#request.path)
-    - [`request.payload`](#request.payload)
-    - [`request.plugins`](#request.plugins)
-    - [`request.pre`](#request.pre)
-    - [`request.response`](#request.response)
-    - [`request.preResponses`](#request.preResponses)
-    - [`request.query`](#request.query)
-    - [`request.raw`](#request.raw)
-    - [`request.route`](#request.route)
-    - [`request.server`](#request.server)
-    - [`request.state`](#request.state)
-    - [`request.url`](#request.url)
-  - [`request.generateResponse(source, [options])`](#request.generateResponse())
-  - [`request.active()`](#request.active())
-  - [`request.log(tags, [data])`](#request.log())
-  - [`request.route.auth.access(request)`](#request.route.auth.access())
-  - [`request.setMethod(method)`](#request.setMethod())
-  - [`request.setUrl(url, [stripTrailingSlash]`](#request.setUrl())
-- [Plugins](#plugins)
-
-<!-- tocstop -->
 
 ## Server
 
@@ -1919,12 +1661,17 @@ async function example() {
 }
 ```
 
-### <a name="server.expose()" /> `server.expose(key, value)`
+### <a name="server.expose()" /> `server.expose(key, value, [options])`
 
 Used within a plugin to expose a property via [`server.plugins[name]`](#server.plugins) where:
 
 - `key` - the key assigned ([`server.plugins[name][key]`](#server.plugins)).
 - `value` - the value assigned.
+- `options` - optional settings:
+    - `scope` - controls how to handle the presence of a plugin scope in the name (e.g. `@hapi/test`):
+        - `false` - the scope is removed (e.g. `@hapi/test` is changed to `test` under `server.plugins`). This is the default.
+        - `true` - the scope is retained as-is (e.g. `@hapi/test` is used as `server.plugins['@hapi/test']`).
+        - `'underscore'` - the scope is rewritten (e.g. `@hapi/test` is used as `server.plugins.hapi__test`).
 
 Return value: none.
 
@@ -3777,9 +3524,8 @@ the same. The following is the complete list of steps a request can go through:
 
 - _**onRequest**_
     - always called when `onRequest` extensions exist.
-    - the request path and method can be modified via the [`request.setUrl()`](#request.setUrl())
-      and [`request.setMethod()`](#request.setMethod()) methods. Changes to the request path or
-      method will impact how the request is routed and can be used for rewrite rules.
+    - the request path and method can be modified via the [`request.setUrl()`](#request.setUrl()) and [`request.setMethod()`](#request.setMethod()) methods. Changes to the request path or method will impact how the request is routed and can be used for rewrite rules.
+    - [`request.payload`](#request.payload) is `undefined` and can be overridden with any non-`undefined` value to bypass payload processing.
     - [`request.route`](#request.route) is unassigned.
     - [`request.url`](#request.url) can be `null` if the incoming request path is invalid.
     - [`request.path`](#request.path) can be an invalid path.
@@ -3807,7 +3553,7 @@ the same. The following is the complete list of steps a request can go through:
     - based on the route [`auth`](#route.options.auth) option.
 
 - _**Payload processing**_
-    - based on the route [`payload`](#route.options.payload) option.
+    - based on the route [`payload`](#route.options.payload) option and if [`request.payload`](#request.payload) has not been overridden in _**onRequest**_.
     - error handling based on [`failAction`](#route.options.payload.failAction).
 
 - _**Payload authentication**_
@@ -4859,22 +4605,19 @@ The request method in lower case (e.g. `'get'`, `'post'`).
 
 Access: read only.
 
-The parsed content-type header. Only available when payload parsing enabled and no
-  payload error occurred.
+The parsed content-type header. Only available when payload parsing enabled and no  payload error occurred.
 
 #### <a name="request.orig" /> `request.orig`
 
 Access: read only.
 
-An object containing the values of `params`, `query`, `payload` and `state` before any validation
-modifications made. Only set when input validation is performed.
+An object containing the values of `params`, `query`, `payload` and `state` before any validation modifications made. Only set when input validation is performed.
 
 #### <a name="request.params" /> `request.params`
 
 Access: read only.
 
-An object where each key is a path parameter name with matching value as described in
-[Path parameters](#path-parameters).
+An object where each key is a path parameter name with matching value as described in [Path parameters](#path-parameters).
 
 #### <a name="request.paramsArray" /> `request.paramsArray`
 
@@ -4890,32 +4633,27 @@ The request URI's [pathname](https://nodejs.org/api/url.html#url_urlobject_pathn
 
 #### <a name="request.payload" /> `request.payload`
 
-Access: read only.
+Access: read only / write in `'onRequest'` extension method.
 
-The request payload based on the route `payload.output` and `payload.parse` settings.
+The request payload based on the route `payload.output` and `payload.parse` settings. Set to `undefined` in `'onRequest'` extension methods and can be overridden to any non-`undefined` value to bypass payload processing.
 
 #### <a name="request.plugins" /> `request.plugins`
 
 Access: read / write.
 
-Plugin-specific state. Provides a place to store and pass request-level plugin data. The `plugins`
-is an object where each key is a plugin name and the value is the state.
+Plugin-specific state. Provides a place to store and pass request-level plugin data. The `plugins` is an object where each key is a plugin name and the value is the state.
 
 #### <a name="request.pre" /> `request.pre`
 
 Access: read only.
 
-An object where each key is the name assigned by a [route pre-handler methods](#route.options.pre)
-function. The values are the raw values provided to the continuation function as argument. For the
-wrapped response object, use `responses`.
+An object where each key is the name assigned by a [route pre-handler methods](#route.options.pre) function. The values are the raw values provided to the continuation function as argument. For the wrapped response object, use `responses`.
 
 #### <a name="request.response" /> `request.response`
 
 Access: read / write (see limitations below).
 
-The response object when set. The object can be modified but must not be assigned another object.
-To replace the response with another from within an [extension point](#server.ext()), return a new response value. Contains `null` when no response has
-been set (e.g. when a request terminates prematurely when the client disconnects).
+The response object when set. The object can be modified but must not be assigned another object. To replace the response with another from within an [extension point](#server.ext()), return a new response value. Contains `null` when no response has been set (e.g. when a request terminates prematurely when the client disconnects).
 
 #### <a name="request.preResponses" /> `request.preResponses`
 
@@ -4927,16 +4665,13 @@ Same as `pre` but represented as the response object created by the pre method.
 
 Access: read only.
 
-An object where each key is a query parameter name and each matching value is the parameter value
-or an array of values if a parameter repeats. Can be modified indirectly via
-[request.setUrl](#request.setUrl()).
+An object where each key is a query parameter name and each matching value is the parameter value or an array of values if a parameter repeats. Can be modified indirectly via [request.setUrl](#request.setUrl()).
 
 #### <a name="request.raw" /> `request.raw`
 
 Access: read only.
 
-An object containing the Node HTTP server objects. **Direct interaction with these raw objects is
-not recommended.**
+An object containing the Node HTTP server objects. **Direct interaction with these raw objects is not recommended.**
 - `req` - the node request object.
 - `res` - the node response object.
 
@@ -4962,8 +4697,7 @@ The server object.
 
 Access: read only.
 
-An object containing parsed HTTP state information (cookies) where each key is the cookie name and
-value is the matching cookie content after processing using any registered cookie definition.
+An object containing parsed HTTP state information (cookies) where each key is the cookie name and value is the matching cookie content after processing using any registered cookie definition.
 
 #### <a name="request.url" /> `request.url`
 
@@ -4977,29 +4711,21 @@ Returns a [`response`](#response-object) which you can pass into the [reply inte
 - `source` - the value to set as the source of the [reply interface](#response-toolkit), optional.
 - `options` - optional object with the following optional properties:
     - `variety` - a sting name of the response type (e.g. `'file'`).
-    - `prepare` - a function with the signature `async function(response)` used to prepare the
-      response after it is returned by a [lifecycle method](#lifecycle-methods) such as setting a
-      file descriptor, where:
+    - `prepare` - a function with the signature `async function(response)` used to prepare the response after it is returned by a [lifecycle method](#lifecycle-methods) such as setting a file descriptor, where:
         - `response` - the response object being prepared.
         - must return the prepared response object (new object or `response`).
         - may throw an error which is used as the prepared response.
-    - `marshal` - a function with the signature `async function(response)` used to prepare the
-      response for transmission to the client before it is sent, where:
+    - `marshal` - a function with the signature `async function(response)` used to prepare the response for transmission to the client before it is sent, where:
         - `response` - the response object being marshaled.
-        - must return the prepared value (not as response object) which can be any value accepted
-          by the [`h.response()`](#h.response()) `value` argument.
+        - must return the prepared value (not as response object) which can be any value accepted by the [`h.response()`](#h.response()) `value` argument.
         - may throw an error which is used as the marshaled value.
-    - `close` - a function with the signature `function(response)` used to close the resources
-      opened by the response object (e.g. file handlers), where:
+    - `close` - a function with the signature `function(response)` used to close the resources opened by the response object (e.g. file handlers), where:
         - `response` - the response object being marshaled.
         - should not throw errors (which are logged but otherwise ignored).
 
 ### <a name="request.active()" /> `request.active()`
 
-Returns `true` when the request is active and processing should continue and `false` when the
-request terminated early or completed its lifecycle. Useful when request processing is a
-resource-intensive operation and should be terminated early if the request is no longer active
-(e.g. client disconnected or aborted early).
+Returns `true` when the request is active and processing should continue and `false` when the request terminated early or completed its lifecycle. Useful when request processing is a resource-intensive operation and should be terminated early if the request is no longer active (e.g. client disconnected or aborted early).
 
 ```js
 const Hapi = require('@hapi/hapi');

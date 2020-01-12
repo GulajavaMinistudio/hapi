@@ -1059,7 +1059,8 @@ describe('validation', () => {
                         schema: Joi.object({
                             some: Joi.string(),
                             more: Joi.string()
-                        }).when('$query.user', { is: 'admin', otherwise: Joi.object({ more: Joi.forbidden() }) })
+                        })
+                            .when('$query.user', { not: 'admin', then: Joi.object({ more: Joi.forbidden() }) })
                     }
                 },
                 handler: () => ({ some: 'thing', more: 'stuff' })
